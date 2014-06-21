@@ -25,7 +25,7 @@ main = do
 
   setCaption "Platformer" "Platformer" 
   
-  let tiles = ["0000000000","0000000000","0000000000","0000000000","1111111111"]
+  let tiles = ["0000000000","0000000000","1001000000","0001000000","1111111111"]
   test1 <- SDLi.load "image/test1.png"
   test2 <- SDLi.load "image/test2.png"
   playerImg <- SDLi.load "image/player.png"

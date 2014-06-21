@@ -3,11 +3,34 @@ import Physics
 import Model
 
 testPlayer = Player (Point 100 100) 1 0
+testPlayerLeft = Player (Point 100 100) (-1) 0
 testTiles = ["0000000000","0000000000","0000000000","0000000000","1111111111"]
+testTilesWithWall = ["0000000000","0000000000","0000000000","0101000000","1111111111"]
 
-nextPosBasic = TestCase (assertEqual "No collision" (Point 101 100) res) 
+nextPosBasic = TestCase (assertEqual "No collision test" (Point 101 100) res) 
   where res = nextPos testPlayer testTiles
 
-nextPosTests = TestList [nextPosBasic]
+nextPosCollission = TestCase (assertEqual "Simple collision test" (Point 100 100) res) 
+  where res = nextPos testPlayer testTilesWithWall
 
-main = runTestTT nextPosTests
+nextPosCollissionLeft = TestCase (assertEqual "Simple collision test" (Point 100 100) res) 
+  where res = nextPos testPlayerLeft testTilesWithWall
+
+yRangeEdge = TestCase (assertEqual "" [2,3] res)
+  where res = affectYRange 100.0
+
+yRangeMid = TestCase (assertEqual "" [1,2,3] res)
+  where res = affectYRange 80.0
+
+xRangeMid = TestCase (assertEqual "" [1,2] res)
+  where res = affectXRange 80
+
+xRangeEdge = TestCase (assertEqual "" [2] res)
+  where res = affectXRange 100
+
+nextPosTests = TestList [nextPosBasic, nextPosCollission, nextPosCollissionLeft]
+rangeTests = TestList [yRangeMid, yRangeEdge, xRangeMid, xRangeEdge] --, yRangeTestOnEdge]
+
+allTests =TestList [nextPosTests, rangeTests]
+
+main = runTestTT allTests
