@@ -4,14 +4,8 @@ import Graphics.UI.SDL.Image as SDLi
 
 import System.Random
 
-data Resource = Resource {
-  font :: Font
-}
-
-data Gs = Gs {
-  running :: Bool,
-  res :: Resource
-}
+import Model
+import Render
 
 main = do
   SDL.init [InitEverything]
@@ -21,8 +15,13 @@ main = do
   font <- openFont "font.ttf" 30
 
   setCaption "Platformer" "Platformer" 
-
-  let gs = Gs True (Resource font)
+  
+  let tiles = ["0000000000", "0000000000", "0000000000", "1111111111","0101010101"] 
+  test1 <- SDLi.load "image/test1.png"
+  test2 <- SDLi.load "image/test2.png"
+  let p = Player (Point 50 50)
+  let r = Resource font test1 test2
+  let gs = Gs True r p tiles
   s <- getVideoSurface
 
   title <- renderTextSolid font "Score" (Color 255 0 0)
@@ -47,7 +46,7 @@ loop gs = do
  
   events <- getEvents pollEvent []
   let gs' = processList handleEvent gs events
-  putStrLn $ show $ length events
+  render gs'
 
   if (running gs')
     then loop gs'
