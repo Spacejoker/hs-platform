@@ -6,21 +6,24 @@ import Graphics.UI.SDL.Image as SDLi
 
 data Resource = Resource {
   font :: Font,
-  tileset :: [Surface]
+  tileset :: [Surface],
+  playerImg :: Surface
 }
 
 data Point = Point {
-  x :: Int,
-  y :: Int
+  xpos :: Int,
+  ypos :: Int
 }
 
 data Player = Player {
-  pos :: Point 
+  pos :: Point,
+  xspeed :: Int,
+  yspeed :: Int
 }
 
 data Gs = Gs {
   running :: Bool,
   res :: Resource,
   player :: Player,
-  physTiles :: [(Int, Int, Int)]
+  physTiles :: [[Char]]
 }

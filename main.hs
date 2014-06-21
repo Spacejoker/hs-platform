@@ -1,10 +1,14 @@
+module Main where
+
 import Graphics.UI.SDL as SDL
 import Graphics.UI.SDL.TTF as TTF
 import Graphics.UI.SDL.Image as SDLi
+import Graphics.UI.SDL.Video as SDLv
 
 import System.Random
 
 import Model
+import Physics
 import Render
 
 get :: Int -> Int -> Int
@@ -21,12 +25,13 @@ main = do
 
   setCaption "Platformer" "Platformer" 
   
-  let tiles = [(x, y, get x y) | x <- [0..9], y <- [0..9]] -- "0000000000", "0000000000", "0000000000", "1111111111","0101010101"] 
+  let tiles = ["0000000000","0000000000","0000000000","0000000000","1111111111"]
   test1 <- SDLi.load "image/test1.png"
   test2 <- SDLi.load "image/test2.png"
-  let p = Player (Point 50 50)
+  playerImg <- SDLi.load "image/player.png"
+  let p = Player (Point 50 50) 0 0
   let tileset = [test1, test2]
-  let r = Resource font tileset
+  let r = Resource font tileset playerImg
   let gs = Gs True r p tiles
   s <- getVideoSurface
 
@@ -49,14 +54,25 @@ loop gs = do
   blitSurface title Nothing s (Just (Rect 480 60 200 40))
   
   SDL.flip s
+  -- SDLv.updateRect s  (Rect 0 0 200 200)
  
   events <- getEvents pollEvent []
-  let gs' = processList handleEvent gs events
+  let gs' = tickLogic (processList handleEvent gs events)
   render gs'
 
   if (running gs')
     then loop gs'
     else return ()
+
+tickLogic :: Gs -> Gs
+tickLogic gs = do
+  let p = player gs
+  let oldx = xpos (pos p)
+  let oldy = ypos (pos p)
+  let newx = oldx + (xspeed p)
+  let newy = oldy
+  let pos' = nextPos p (physTiles gs)
+  gs { player = (player gs){ pos = pos'} }
 
 getEvents :: IO Event -> [Event] -> IO [Event]
 getEvents pEvent es = do
@@ -70,16 +86,9 @@ handleEvent :: Gs -> Event -> Gs
 handleEvent gs x =
   case x of 
     KeyDown (Keysym SDLK_ESCAPE _ _) -> gs { running = False }
+    KeyDown (Keysym SDLK_a _ _) -> gs { player = (player gs) {xspeed = -1} }
+    KeyUp (Keysym SDLK_a _ _) -> gs { player = (player gs) {xspeed = 0} }
+    KeyDown (Keysym SDLK_e _ _) -> gs { player = (player gs) {xspeed = 1} }
+    KeyUp (Keysym SDLK_e _ _) -> gs { player = (player gs) {xspeed = 0} }
     _ -> gs
-
-handle :: Event -> Bool
-handle x =
-  case x of
-    -- KeyDown (Keysym SDLK_SPACE _ _) -> newGameState gs
-    -- KeyDown (Keysym SDLK_RETURN _ _) -> case menuchoice gs of
-                                          -- 0 -> newGameState gs
-                                          -- _ -> gs {gameActive = False}
-    KeyDown (Keysym SDLK_ESCAPE _ _) -> False
-    _ -> True
-
 
