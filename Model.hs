@@ -18,7 +18,8 @@ data Point = Point {
 data Player = Player {
   pos :: Point,
   xspeed :: Float,
-  yspeed :: Float
+  yspeed :: Float,
+  gravity :: Float
 }
 
 data Gs = Gs {

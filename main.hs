@@ -29,7 +29,7 @@ main = do
   test1 <- SDLi.load "image/test1.png"
   test2 <- SDLi.load "image/test2.png"
   playerImg <- SDLi.load "image/player.png"
-  let p = Player (Point 50 50) 0 0
+  let p = Player (Point 50 50) 0 0 0.5
   let tileset = [test1, test2]
   let r = Resource font tileset playerImg
   let gs = Gs True r p tiles

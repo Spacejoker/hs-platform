@@ -2,8 +2,8 @@ import Test.HUnit
 import Physics
 import Model
 
-testPlayer = Player (Point 100 100) 1 0
-testPlayerLeft = Player (Point 100 100) (-1) 0
+testPlayer = Player (Point 100 100) 1 0 0.5
+testPlayerLeft = Player (Point 100 100) (-1) 0 0.5
 testTiles = ["0000000000","0000000000","0000000000","0000000000","1111111111"]
 testTilesWithWall = ["0000000000","0000000000","0000000000","0101000000","1111111111"]
 
@@ -28,9 +28,12 @@ xRangeMid = TestCase (assertEqual "" [1,2] res)
 xRangeEdge = TestCase (assertEqual "" [2] res)
   where res = affectXRange 100
 
+playerHaveYAcc = TestCase (assertBool "" ((gravity testPlayer) /= 0))
+
 nextPosTests = TestList [nextPosBasic, nextPosCollission, nextPosCollissionLeft]
 rangeTests = TestList [yRangeMid, yRangeEdge, xRangeMid, xRangeEdge] --, yRangeTestOnEdge]
+playerTests = TestList [playerHaveYAcc]
 
-allTests =TestList [nextPosTests, rangeTests]
+allTests =TestList [nextPosTests, rangeTests, playerTests]
 
 main = runTestTT allTests
