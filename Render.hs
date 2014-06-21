@@ -18,7 +18,7 @@ render gs = do
 renderPlayer :: Surface -> Player -> IO()
 renderPlayer img p = do
   s <- getVideoSurface
-  let (xp, yp) = (\x -> (xpos x, ypos x)) (pos p)
+  let (xp, yp) = (\x -> (floor $ xpos x, floor $ ypos x)) (pos p)
   blitSurface img Nothing s (Just (Rect xp yp (xp + dim) (yp + dim*2)))
   return ()
 
@@ -39,18 +39,7 @@ renderTile x y res (c:cs) = do
   let xx = x*dim
   let yy = y*dim
   let img = (tileset res) !! v
-  putStrLn $ show xx
   
   blitSurface img Nothing s (Just (Rect xx yy (xx + dim) (yy+dim)))
   renderTile (x+1) y res cs
 
--- renderTile :: Resource -> (Int, Int, Int) -> IO()
--- renderTile res (x, y, v) = do
--- 
-  -- s <- getVideoSurface
-  -- let xx = x*dim
-  -- let yy = y*dim
-  -- let img = (tileset res) !! v
-  -- 
-  -- blitSurface img Nothing s (Just (Rect xx yy (xx + dim) (yy+dim)))
-  -- return ()

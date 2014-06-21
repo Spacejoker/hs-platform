@@ -11,14 +11,14 @@ data Resource = Resource {
 }
 
 data Point = Point {
-  xpos :: Int,
-  ypos :: Int
-}
+  xpos :: Float,
+  ypos :: Float
+} deriving (Show, Eq)
 
 data Player = Player {
   pos :: Point,
-  xspeed :: Int,
-  yspeed :: Int
+  xspeed :: Float,
+  yspeed :: Float
 }
 
 data Gs = Gs {

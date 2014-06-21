@@ -7,5 +7,8 @@ import Model
 --getYRange y =
 
 nextPos :: Player -> [[Char]] -> Point
-nextPos _ _ = Point 0 0
+nextPos player tiles = Point x' y'
+  where ps = pos player
+        x' = (xpos ps) + (xspeed player)
+        y' = ypos ps
 
