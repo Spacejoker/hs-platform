@@ -1,0 +1,3 @@
+add gravity
+add jump
+fix slope-tiles
