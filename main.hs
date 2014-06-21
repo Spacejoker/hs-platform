@@ -7,6 +7,11 @@ import System.Random
 import Model
 import Render
 
+get :: Int -> Int -> Int
+get x y 
+  | y > 5 = 0
+  | otherwise = 1
+
 main = do
   SDL.init [InitEverything]
 
@@ -16,11 +21,12 @@ main = do
 
   setCaption "Platformer" "Platformer" 
   
-  let tiles = ["0000000000", "0000000000", "0000000000", "1111111111","0101010101"] 
+  let tiles = [(x, y, get x y) | x <- [0..9], y <- [0..9]] -- "0000000000", "0000000000", "0000000000", "1111111111","0101010101"] 
   test1 <- SDLi.load "image/test1.png"
   test2 <- SDLi.load "image/test2.png"
   let p = Player (Point 50 50)
-  let r = Resource font test1 test2
+  let tileset = [test1, test2]
+  let r = Resource font tileset
   let gs = Gs True r p tiles
   s <- getVideoSurface
 

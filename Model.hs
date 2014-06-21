@@ -6,8 +6,7 @@ import Graphics.UI.SDL.Image as SDLi
 
 data Resource = Resource {
   font :: Font,
-  test1 :: Surface,
-  test2 :: Surface
+  tileset :: [Surface]
 }
 
 data Point = Point {
@@ -23,5 +22,5 @@ data Gs = Gs {
   running :: Bool,
   res :: Resource,
   player :: Player,
-  phys_tiles :: [[Char]]
+  physTiles :: [(Int, Int, Int)]
 }
