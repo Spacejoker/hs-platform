@@ -1,9 +1,14 @@
 import Test.HUnit
 import Physics
 import Model
+import Graphics.UI.SDL.Image as SDLi
+import Graphics.UI.SDL.Video as SDLv
+import Data.Word
+import TestRender (renderList)
 
-testPlayer = Player (Point 100 100) 100 0 0.5
-testPlayerLeft = Player (Point 100 100) (-100) 0 0.5
+
+testPlayer = Player (Point 100 100) 100 0 0.5 []
+testPlayerLeft = Player (Point 100 100) (-100) 0 0.5 []
 testTiles = ["0000000000","0000000000","0000000000","0000000000","1111111111"]
 testTilesWithWall = ["0000000000","0000000000","0000000000","0101000000","1111111111"]
 
@@ -34,6 +39,5 @@ nextPosTests = TestList [nextPosBasic, nextPosCollission, nextPosCollissionLeft]
 rangeTests = TestList [yRangeMid, yRangeEdge, xRangeMid, xRangeEdge] --, yRangeTestOnEdge]
 playerTests = TestList [playerHaveYAcc]
 
-allTests =TestList [nextPosTests, rangeTests, playerTests]
-
+allTests =TestList [nextPosTests, rangeTests, playerTests, renderList]
 main = runTestTT allTests

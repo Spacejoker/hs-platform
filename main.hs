@@ -66,7 +66,7 @@ loop gs t0 = do
  
   events <- getEvents pollEvent []
   let gs' = tickLogic (processList handleEvent gs events) (read $ show dt)
-  render gs'
+  render gs' (read $ show dt)
 
   if (running gs')
     then loop gs' t
