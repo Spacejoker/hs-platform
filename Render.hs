@@ -1,4 +1,5 @@
 module Render where
+
 import Graphics.UI.SDL as SDL
 import Data.Char (digitToInt)
 

@@ -19,7 +19,8 @@ data Player = Player {
   pos :: Point,
   xspeed :: Float,
   yspeed :: Float,
-  gravity :: Float
+  gravity :: Float,
+  playerAnimations :: [Animation]
 }
 
 data Gs = Gs {
@@ -27,4 +28,12 @@ data Gs = Gs {
   res :: Resource,
   player :: Player,
   physTiles :: [[Char]]
+}
+
+data Animation = Animation {
+  animImage :: Surface,
+  height :: Int,
+  width :: Int,
+  frameOrder :: [Int],
+  frameTime :: Int
 }
