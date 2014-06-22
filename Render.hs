@@ -8,19 +8,24 @@ import Model
 dim :: Int
 dim = 50
 
+getPlayerAnimImage :: Player -> (Surface, Maybe Rect)
+getPlayerAnimImage p = (animImage animation, Just $ Rect (frame*w) 0 (frame*(w+1)) 100)
+  where animation = head (playerAnimations p)
+        frame = 0
+        w = width animation
+
 render :: Gs -> IO()
 render gs = do
   let t = physTiles gs
   renderRows 0 0 (res gs) t
   -- mapM_ (renderTile (res gs)) t
-  renderPlayer (playerImg $ res gs) (player gs)
-  
+  renderPlayer (getPlayerAnimImage (player gs)) (player gs)
 
-renderPlayer :: Surface -> Player -> IO()
-renderPlayer img p = do
+renderPlayer :: (Surface, Maybe Rect) -> Player -> IO()
+renderPlayer (img, rect) p = do
   s <- getVideoSurface
-  let (xp, yp) = (\x -> (floor $ xpos x, floor $ ypos x)) (pos p)
-  blitSurface img Nothing s (Just (Rect xp yp (xp + dim) (yp + dim*2)))
+  let (xp, yp) = (\x -> (floor $ xpos x - 25, floor $ ypos x)) (pos p)
+  blitSurface img rect s (Just (Rect xp yp (xp + dim) (yp + dim*2)))
   return ()
 
 renderRows :: Int -> Int -> Resource -> [[Char]] -> IO()
@@ -28,7 +33,6 @@ renderRows _ _ _ [] = return ()
 renderRows x y res (r:rs) = do
   renderTile x y res r
   renderRows x (y+1) res rs
-
 
 renderTile :: Int -> Int -> Resource -> [Char] -> IO()
 renderTile _ _ _ [] = return ()

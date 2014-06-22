@@ -31,7 +31,10 @@ main = do
   test1 <- SDLi.load "image/test1.png"
   test2 <- SDLi.load "image/test2.png"
   playerImg <- SDLi.load "image/player.png"
-  let p = Player (Point 50 50) 0 0 0.5
+  runImg <- SDLi.load "image/mario.png"
+  let runAnim = Animation runImg 100 100 [0, 1] 100
+  let panims = [runAnim]
+  let p = Player (Point 50 50) 0 0 0.5 panims
   let tileset = [test1, test2]
   let r = Resource font tileset playerImg
   let gs = Gs True r p tiles
@@ -76,7 +79,7 @@ tickLogic gs dt = do
   let oldy = ypos (pos p)
   let newx = oldx + (xspeed p)
   let newy = oldy
-  let pos' = nextPos p (physTiles gs) dt
+  let pos' = nextPos p (physTiles gs) (read $ show dt)
   gs { player = (player gs){ pos = pos'} }
 
 getEvents :: IO Event -> [Event] -> IO [Event]
@@ -91,9 +94,9 @@ handleEvent :: Gs -> Event -> Gs
 handleEvent gs x =
   case x of 
     KeyDown (Keysym SDLK_ESCAPE _ _) -> gs { running = False }
-    KeyDown (Keysym SDLK_a _ _) -> gs { player = (player gs) {xspeed = -1} }
+    KeyDown (Keysym SDLK_a _ _) -> gs { player = (player gs) {xspeed = -100} }
     KeyUp (Keysym SDLK_a _ _) -> gs { player = (player gs) {xspeed = 0} }
-    KeyDown (Keysym SDLK_e _ _) -> gs { player = (player gs) {xspeed = 1} }
+    KeyDown (Keysym SDLK_e _ _) -> gs { player = (player gs) {xspeed = 100} }
     KeyUp (Keysym SDLK_e _ _) -> gs { player = (player gs) {xspeed = 0} }
     _ -> gs
 
