@@ -1,2 +1,2 @@
-ghc --make MyTest.hs
-./MyTest
+ghc --make TestPhysics.hs
+./TestPhysics

@@ -7,6 +7,8 @@ import Graphics.UI.SDL.Video as SDLv
 
 import System.Random
 
+import Data.Word
+
 import Model
 import Physics
 import Render
@@ -38,17 +40,20 @@ main = do
   title <- renderTextSolid font "Score" (Color 255 0 0)
   blitSurface title Nothing s (Just (Rect 480 60 200 40))
   
+  t0 <- getTicks 
   SDL.flip s
-  loop gs
+  loop gs t0
 
 processList :: (a -> b -> a) -> a -> [b] -> a
 processList _ v [] = v
 processList f v (x:xs) = processList f (f v x) xs
 
-loop :: Gs -> IO()
-loop gs = do
+loop :: Gs -> Word32 -> IO()
+loop gs t0 = do
   
   s <- getVideoSurface
+  t <- getTicks
+  let dt = t - t0
 
   title <- renderTextSolid (font $ res gs) "Score" (Color 255 0 0)
   blitSurface title Nothing s (Just (Rect 480 60 200 40))
@@ -57,21 +62,21 @@ loop gs = do
   -- SDLv.updateRect s  (Rect 0 0 200 200)
  
   events <- getEvents pollEvent []
-  let gs' = tickLogic (processList handleEvent gs events)
+  let gs' = tickLogic (processList handleEvent gs events) (read $ show dt)
   render gs'
 
   if (running gs')
-    then loop gs'
+    then loop gs' t
     else return ()
 
-tickLogic :: Gs -> Gs
-tickLogic gs = do
+tickLogic :: Gs -> Word32 -> Gs
+tickLogic gs dt = do
   let p = player gs
   let oldx = xpos (pos p)
   let oldy = ypos (pos p)
   let newx = oldx + (xspeed p)
   let newy = oldy
-  let pos' = nextPos p (physTiles gs)
+  let pos' = nextPos p (physTiles gs) dt
   gs { player = (player gs){ pos = pos'} }
 
 getEvents :: IO Event -> [Event] -> IO [Event]

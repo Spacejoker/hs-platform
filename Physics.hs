@@ -2,6 +2,8 @@ module Physics where
 
 import Model
 import Control.Conditional (cond)
+import Data.Word
+
 
 -- get affected y-layers
 affectYRange :: Float -> [Int]
@@ -21,14 +23,15 @@ collidesX x (y:ys) tiles
   | ((tiles !! y) !! x) == '1' = True
   | otherwise = collidesX x ys tiles
 
-nextPos :: Player -> [[Char]] -> Point
-nextPos player tiles = next
+nextPos :: Player -> [[Char]] -> Int -> Point
+nextPos player tiles dt = next
   where ps = pos player
-        x' = (xpos ps) + (xspeed player)
+        xspeed' = (xspeed player) * (fromIntegral dt) / 1000.0
+        x' = (xpos ps) + (xspeed')
         y' = ypos ps
         next = if collidesX xelement (affectYRange y') tiles 
                 then Point (xpos ps) y'
                 else Point x' y'
-        xelement = cond [((xspeed player) > 0.0, last $ affectXRange x'),
+        xelement = cond [((xspeed') > 0.0, last $ affectXRange x'),
                          (otherwise, head $ affectXRange x')]
 
