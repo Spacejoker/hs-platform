@@ -37,11 +37,11 @@ pApplyGravity = TestCase (assertEqual "Create gravity f" 1.0 res)
 
 --added
 pJumpInAir = TestCase ( assertBool "Jump player in air" (res >= 0))
-  where res = yspeed $ jump airPlayer False
+  where res = yspeed $ jump airPlayer testTiles
 
 --added
 pJumpOnGround = TestCase ( assertBool "Jump player on ground" (res < 0))
-  where res = yspeed $ jump testPlayer True
+  where res = yspeed $ jump testPlayer testTiles
 
 --added
 pAccellerateDown = TestCase ( assertBool "Longer dt -> higher acceleration" (a > b) )
@@ -61,6 +61,12 @@ xRangeMid = TestCase (assertEqual "xRangeMid" [1,2] res)
   where res = affectXRange 80
 
 playerHaveYAcc = TestCase (assertBool "" ((gravity testPlayer) /= 0))
+
+collideCheckA = TestCase (assertEqual "collide1" True res)
+  where res = isTileColliding [(0, 0), (2, 1)] ["0000","0010","0000"]
+
+collideCheckB = TestCase (assertEqual "collide1" False res)
+  where res = isTileColliding [(2, 1)] ["0000","0000","0100"]
 
 ignoredTests = TestList []
 nextPosTests = TestList [nextPosCollissionHalfWay, nextPosBasic, nextPosCollission, nextPosCollissionLeft]
