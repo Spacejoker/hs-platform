@@ -20,55 +20,57 @@ nextPosBasic = TestCase (assertEqual "No collision test" (Point 101 100) res)
 nextPosCollission = TestCase (assertEqual "Simple collision test" (Point 100 100) res) 
   where res = nextPos testPlayer testTilesWithWall 10
 
---added
+-- ignore for now
 nextPosCollissionHalfWay = TestCase (assertEqual "Improve collission!" (Point 100 100) res) 
   where res = nextPos (Player (Point 99 100) 200 0 0.5 []) testTilesWithWall 10
 
-nextPosCollissionLeft = TestCase (assertEqual "Simple collision test" (Point 100 100) res) 
+nextPosCollissionLeft = TestCase (assertEqual "Simple collision test left" (Point 100 100) res) 
   where res = nextPos testPlayerLeft testTilesWithWall 10
 
 --added
-pFalling = TestCase (assertEqual "Add falling-collission" (Point 100 100) res
+pFalling = TestCase (assertEqual "Add falling-collission" (Point 100 100) res)
   where res = nextPos (Player (Point 100 99) 0 100 0.5 []) testTilesWithWall 20
 
 --added
 pApplyGravity = TestCase (assertEqual "Create gravity f" 1.0 res)
-  where res = yspeed (gravity airPlayer 20)
+  where res = yspeed (applyGravity airPlayer 20)
 
 --added
-pJumpInAir = TestCase ( assertBool "" (res > 0))
-  where res = yspeed $ jump airPlayer
+pJumpInAir = TestCase ( assertBool "Jump player in air" (res >= 0))
+  where res = yspeed $ jump airPlayer False
 
 --added
-pJumpOnGround = TestCase ( assertBool "" (res < 0))
-  where res = yspeed $ jump testPlayer
+pJumpOnGround = TestCase ( assertBool "Jump player on ground" (res < 0))
+  where res = yspeed $ jump testPlayer True
 
 --added
-pAccellerateDown = TestCase ( assertBool "" (a > b) )
-  where a = yspeed ( gravity airPlayer 100)
-        b = yspeed ( gravity airPlayer 10)
+pAccellerateDown = TestCase ( assertBool "Longer dt -> higher acceleration" (a > b) )
+  where a = yspeed ( applyGravity airPlayer 100)
+        b = yspeed ( applyGravity airPlayer 10)
 
-yRangeEdge = TestCase (assertEqual "" [2,3] res)
+yRangeEdge = TestCase (assertEqual "yRangeEdge" [2,3] res)
   where res = affectYRange 100.0
 
-yRangeMid = TestCase (assertEqual "" [1,2,3] res)
+yRangeMid = TestCase (assertEqual "yRangeMid" [1,2,3] res)
   where res = affectYRange 80.0
 
-xRangeMid = TestCase (assertEqual "" [1,2] res)
-  where res = affectXRange 80
-
-xRangeEdge = TestCase (assertEqual "" [2] res)
+xRangeEdge = TestCase (assertEqual "xRangeEdge" [2] res)
   where res = affectXRange 100
+
+xRangeMid = TestCase (assertEqual "xRangeMid" [1,2] res)
+  where res = affectXRange 80
 
 playerHaveYAcc = TestCase (assertBool "" ((gravity testPlayer) /= 0))
 
-nextPosTests = TestList [nextPosBasic, nextPosCollission, nextPosCollissionHalfWay, nextPosCollissionLeft]
+ignoredTests = TestList []
+nextPosTests = TestList [nextPosCollissionHalfWay, nextPosBasic, nextPosCollission, nextPosCollissionLeft]
 rangeTests = TestList [yRangeMid, yRangeEdge, xRangeMid, xRangeEdge] 
 gravityTests = TestList [pApplyGravity, pFalling]
 jumpTests = TestList [pJumpInAir, pJumpOnGround]
 playerTests = TestList [playerHaveYAcc]
 
-physTests = [nextPosTests, rangeTests, playerTests, gravityTests, jumpTests]
+physTests = TestList [nextPosTests, rangeTests, playerTests, gravityTests, jumpTests]
 
 allTests =TestList [physTests, renderList]
 main = runTestTT allTests
+

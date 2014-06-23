@@ -23,6 +23,11 @@ collidesX x (y:ys) tiles
   | ((tiles !! y) !! x) == '1' = True
   | otherwise = collidesX x ys tiles
 
+roundToNearestTile :: Float -> Int -> Float
+roundToNearestTile x tileSize = fromIntegral $  floored - change
+  where floored = floor (x + 25.0)
+        change = floored `mod` tileSize
+
 nextPos :: Player -> [[Char]] -> Int -> Point
 nextPos player tiles dt = next
   where ps = pos player
@@ -30,8 +35,14 @@ nextPos player tiles dt = next
         x' = (xpos ps) + (xspeed')
         y' = ypos ps
         next = if collidesX xelement (affectYRange y') tiles 
-                then Point (xpos ps) y'
+                then Point (roundToNearestTile (xpos ps) 50) y'
                 else Point x' y'
-        xelement = cond [((xspeed') > 0.0, last $ affectXRange x'),
+        xelement = cond [(xspeed' > 0.0, last $ affectXRange x'),
                          (otherwise, head $ affectXRange x')]
 
+jump :: Player -> Bool -> Player
+jump p _ = p
+
+
+applyGravity :: Player -> Int -> Player
+applyGravity p _  = p
