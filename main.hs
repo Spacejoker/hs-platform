@@ -98,5 +98,6 @@ handleEvent gs x =
     KeyUp (Keysym SDLK_a _ _) -> gs { player = (player gs) {xspeed = 0} }
     KeyDown (Keysym SDLK_e _ _) -> gs { player = (player gs) {xspeed = 100} }
     KeyUp (Keysym SDLK_e _ _) -> gs { player = (player gs) {xspeed = 0} }
+    KeyUp (Keysym SDLK_SPACE _ _) -> gs { player = jump (player gs) (physTiles gs) }
     _ -> gs
 
