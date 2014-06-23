@@ -9,7 +9,7 @@ import TestRender (renderList)
 
 testPlayer = Player (Point 100 100) 100 0 0.5 []
 testPlayerLeft = Player (Point 100 100) (-100) 0 0.5 []
-airPlayer = Player (Point 100 50) 0 0 0.5 []
+airPlayer = Player (Point 100 50) 0 0 0.05 []
 
 testTiles = ["0000000000","0000000000","0000000000","0000000000","1111111111"]
 testTilesWithWall = ["0000000000","0000000000","0000000000","0101000000","1111111111"]

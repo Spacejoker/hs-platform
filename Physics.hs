@@ -45,4 +45,6 @@ jump p _ = p
 
 
 applyGravity :: Player -> Int -> Player
-applyGravity p _  = p
+applyGravity p dt  = p { yspeed = (yspeed p) + ((fromIntegral dt) * (gravity p)) }
+  where oldSpeed = yspeed p
+        acceleration = (fromIntegral dt) * (gravity p)
