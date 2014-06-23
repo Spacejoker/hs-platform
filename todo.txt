@@ -1,5 +1,6 @@
 add gravity
 add jump
 fix slope-tiles
+remove SDL-dependencies for non-rendering code
 
 cabal install cond
