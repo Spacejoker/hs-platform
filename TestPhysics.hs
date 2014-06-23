@@ -33,7 +33,7 @@ pFalling = TestCase (assertEqual "Add falling-collission" (Point 100 100) res
 
 --added
 pApplyGravity = TestCase (assertEqual "Create gravity f" 1.0 res)
-  where res = yspeed (gravity airPlayer) 20
+  where res = yspeed (gravity airPlayer 20)
 
 --added
 pJumpInAir = TestCase ( assertBool "" (res > 0))
@@ -42,6 +42,11 @@ pJumpInAir = TestCase ( assertBool "" (res > 0))
 --added
 pJumpOnGround = TestCase ( assertBool "" (res < 0))
   where res = yspeed $ jump testPlayer
+
+--added
+pAccellerateDown = TestCase ( assertBool "" (a > b) )
+  where a = yspeed ( gravity airPlayer 100)
+        b = yspeed ( gravity airPlayer 10)
 
 yRangeEdge = TestCase (assertEqual "" [2,3] res)
   where res = affectYRange 100.0
