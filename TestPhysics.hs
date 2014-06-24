@@ -2,9 +2,8 @@ import Test.HUnit
 import Physics
 import Model
 import Data.Word
--- import TestRender (renderList)
 
-
+-- Test data
 testPlayer = Player (Point 100 100) 100 0 0.5 []
 testPlayerLeft = Player (Point 100 100) (-100) 0 0.5 []
 airPlayer = Player (Point 100 50) 0 0 0.05 []
@@ -12,77 +11,49 @@ airPlayer = Player (Point 100 50) 0 0 0.05 []
 testTiles = ["0000000000","0000000000","0000000000","0000000000","1111111111"]
 testTilesWithWall = ["0000000000","0000000000","0000000000","0101000000","1111111111"]
 
-nextPosBasic = TestCase (assertEqual "No collision test" (Point 101 100) res) 
-  where res = nextPos testPlayer testTiles 10
+nextPosTests = TestList 
+    [ "No collision test" ~: (Point 101 100) ~=? nextPos testPlayer testTiles 10
+    , "Simple collision test" ~: (Point 100 100) ~=? nextPos testPlayer testTilesWithWall 10
+    , "Improve collission!" ~: (Point 100 100) ~=? nextPos (Player (Point 99 100) 200 0 0.5 []) testTilesWithWall 10
+    , "Simple collision test left" ~: (Point 100 100) ~=? nextPos testPlayerLeft testTilesWithWall 10
+    ]
 
-nextPosCollission = TestCase (assertEqual "Simple collision test" (Point 100 100) res) 
-  where res = nextPos testPlayer testTilesWithWall 10
+gravityTests = TestList 
+    [ "Test apply gravity" ~: 1.0 ~=? (yspeed (applyGravity airPlayer 20))
+    , "Falling" ~: (Point 100 100) ~=? nextPos (Player (Point 100 99) 0 100 0.5 []) testTilesWithWall 20
+    ]
 
--- ignore for now
-nextPosCollissionHalfWay = TestCase (assertEqual "Improve collission!" (Point 100 100) res) 
-  where res = nextPos (Player (Point 99 100) 200 0 0.5 []) testTilesWithWall 10
+jumpTests = TestList
+    [ "Jump player in air" ~: assertBool "" ((yspeed $ jump airPlayer testTiles) >= 0)
+    , "Jump player on ground" ~: assertBool "" ((yspeed $ jump testPlayer testTiles) < 0)
+    ]
 
-nextPosCollissionLeft = TestCase (assertEqual "Simple collision test left" (Point 100 100) res) 
-  where res = nextPos testPlayerLeft testTilesWithWall 10
+playerTests = TestList
+    [  "Longer dt -> higher acceleration" ~: True ~=? (f 100 > f 10)
+    ]
+  where f = (\x -> yspeed ( applyGravity airPlayer x))
 
---added
-pFalling = TestCase (assertEqual "Add falling-collission" (Point 100 100) res)
-  where res = nextPos (Player (Point 100 99) 0 100 0.5 []) testTilesWithWall 20
-
---added
-pApplyGravity = TestCase (assertEqual "Create gravity f" 1.0 res)
-  where res = yspeed (applyGravity airPlayer 20)
-
---added
-pJumpInAir = TestCase ( assertBool "Jump player in air" (res >= 0))
-  where res = yspeed $ jump airPlayer testTiles
-
---added
-pJumpOnGround = TestCase ( assertBool "Jump player on ground" (res < 0))
-  where res = yspeed $ jump testPlayer testTiles
-
---added
-pAccellerateDown = TestCase ( assertBool "Longer dt -> higher acceleration" (a > b) )
-  where a = yspeed ( applyGravity airPlayer 100)
-        b = yspeed ( applyGravity airPlayer 10)
-
-yRangeEdge = TestCase (assertEqual "yRangeEdge" [2,3] res)
-  where res = affectYRange 100.0
-
-yRangeMid = TestCase (assertEqual "yRangeMid" [1,2,3] res)
-  where res = affectYRange 80.0
-
-xRangeEdge = TestCase (assertEqual "xRangeEdge" [2] res)
-  where res = affectXRange 100
-
-xRangeMid = TestCase (assertEqual "xRangeMid" [1,2] res)
-  where res = affectXRange 80
+-- rangeTests = TestList [yRangeMid, yRangeEdge, xRangeMid, xRangeEdge] 
+rangeTests = TestList 
+    [ "yRangeEdge" ~: [2,3] ~=? affectYRange 100.0
+    , "yRangeMid"  ~: [1,2,3] ~=? affectYRange 80.0
+    , "xRangeEdge" ~: [2] ~=? affectXRange 100
+    , "xRangeMid" ~: [1,2] ~=? affectXRange 80
+    ]
 
 playerHaveYAcc = TestCase (assertBool "" ((gravity testPlayer) /= 0))
 
-collideCheckA = TestCase (assertEqual "collide1" True res)
-  where res = isTileColliding [(0, 0), (2, 1)] ["0000","0010","0000"]
+collissionTests = TestList
+     [ "collide1" ~: True ~=? isTileColliding [(0, 0), (2, 1)] ["0000","0010","0000"]
+     , "collide1" ~: False ~=? isTileColliding [(2, 1)] ["0000","0000","0100"]
+     ]
 
-collideCheckB = TestCase (assertEqual "collide1" False res)
-  where res = isTileColliding [(2, 1)] ["0000","0000","0100"]
+pixelCheck = TestList
+    [ "pixelWall1" ~: True ~=? pixelWall (Point 0 0) ["10","00"]
+    , "pixelWall2" ~: False ~=? pixelWall (Point 50 50) ["10","00"]
+    ]
 
-pixelWall1 = TestCase (assertEqual "pixelWall1" True res)
-  where res = pixelWall (Point 0 0) ["10","00"]
-
-pixelWall0 = TestCase (assertEqual "pixelWall2" False res)
-  where res = pixelWall (Point 50 50) ["10","00"]
-
-ignoredTests = TestList []
-nextPosTests = TestList [nextPosCollissionHalfWay, nextPosBasic, nextPosCollission, nextPosCollissionLeft]
-rangeTests = TestList [yRangeMid, yRangeEdge, xRangeMid, xRangeEdge] 
-gravityTests = TestList [pApplyGravity, pFalling]
-jumpTests = TestList [pJumpInAir, pJumpOnGround]
-playerTests = TestList [playerHaveYAcc]
-collissionTest = TestList[pixelWall1]
-
-physTests = TestList [nextPosTests, rangeTests, playerTests, gravityTests, jumpTests, collissionTest]
-
--- , renderList
+physTests = TestList [nextPosTests, rangeTests, playerTests, gravityTests, jumpTests, pixelCheck, collissionTests]
 
 allTests =TestList [physTests]
 main = runTestTT allTests

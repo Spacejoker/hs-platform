@@ -31,7 +31,7 @@ getDist :: Float -> Int -> Float
 getDist speed dt = speed * (fromIntegral dt) / 1000.0
 
 nextPos :: Player -> [[Char]] -> Int -> Point
-nextPos player tiles dt = next
+nextPos player tiles dt = Point finalx finaly
   where ps = pos player
         xdist = getDist (xspeed player) dt
         ydist = getDist (yspeed player) dt
@@ -39,19 +39,20 @@ nextPos player tiles dt = next
         oldy = ypos ps
         x' = oldx + (xdist)
         y' = oldy + (ydist)
-        xelement = cond [(xdist > 0.0, last $ affectXRange x'),
-                         (otherwise, head $ affectXRange x')]
-        yelement = cond [(ydist > 0.0, last $ affectYRange y'),
-                         (otherwise, head $ affectYRange y')]
+        xelement
+          | xdist > 0.0 = last $ affectXRange x'
+          | otherwise = head $ affectXRange x'
+        yelement 
+          | ydist > 0.0 = last $ affectYRange y'
+          | otherwise = head $ affectYRange y'
         xCheck = [(xelement, b) | b <- (affectYRange y')]
         yCheck = [(a, yelement) | a <- (affectXRange x')]
         finalx = if isTileColliding xCheck tiles 
                   then (roundToNearestTile (xpos ps) 50)
                   else x'
-        finaly = if isTileColliding yCheck tiles
-                  then (roundToNearestTile (xpos ps) 50)
-                  else y'
-        next = Point finalx finaly
+        finaly 
+          | isTileColliding yCheck tiles = (roundToNearestTile (xpos ps) 50)
+          | otherwise = y'
 
 isPlayerOnGround a b = True
 
