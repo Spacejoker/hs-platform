@@ -1,15 +1,5 @@
 module Model where
 
-import Graphics.UI.SDL as SDL
-import Graphics.UI.SDL.TTF as TTF
-import Graphics.UI.SDL.Image as SDLi
-
-data Resource = Resource {
-  font :: Font,
-  tileset :: [Surface],
-  playerImg :: Surface
-}
-
 data Point = Point {
   xpos :: Float,
   ypos :: Float
@@ -25,13 +15,12 @@ data Player = Player {
 
 data Gs = Gs {
   running :: Bool,
-  res :: Resource,
   player :: Player,
   physTiles :: [[Char]]
 }
 
 data Animation = Animation {
-  animImage :: Surface,
+  animImageResId :: Int,
   height :: Int,
   width :: Int,
   frameOrder :: [Int],

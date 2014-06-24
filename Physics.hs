@@ -4,7 +4,6 @@ import Model
 import Control.Conditional (cond)
 import Data.Word
 
-
 -- get affected y-layers
 affectYRange :: Float -> [Int]
 affectYRange y = [a..b]
@@ -22,12 +21,6 @@ isTileColliding (x:xs) m = (collideTest x m) || isTileColliding xs m
 
 collideTest :: (Int, Int) -> [[Char]] -> Bool
 collideTest (x, y) tiles = ((tiles !! y) !! x) == '1'
-
---collidesX :: Int -> [Int] -> [[Char]] -> Bool
---collidesX _ [] _ = False
---collidesX x (y:ys) tiles
-  -- | ((tiles !! y) !! x) == '1' = True
-  -- | otherwise = collidesX x ys tiles
 
 roundToNearestTile :: Float -> Int -> Float
 roundToNearestTile x tileSize = fromIntegral $  floored - change
@@ -72,3 +65,10 @@ applyGravity :: Player -> Int -> Player
 applyGravity p dt  = p { yspeed = (yspeed p) + ((fromIntegral dt) * (gravity p)) }
   where oldSpeed = yspeed p
         acceleration = (fromIntegral dt) * (gravity p)
+
+pixelWall :: Point -> [[Char]] -> Bool
+pixelWall p tiles = ((tiles !! y') !! x') == '1'
+  where x = ((floor(xpos p))::Int)
+        y = ((floor(ypos p))::Int)
+        x' = x `quot` 50
+        y' = y `quot` 50

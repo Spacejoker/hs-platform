@@ -37,7 +37,7 @@ main = do
   let p = Player (Point 50 50) 0 0 0.5 panims
   let tileset = [test1, test2]
   let r = Resource font tileset playerImg
-  let gs = Gs True r p tiles
+  let gs = Gs True p tiles
   s <- getVideoSurface
 
   title <- renderTextSolid font "Score" (Color 255 0 0)
@@ -45,13 +45,13 @@ main = do
   
   t0 <- getTicks 
   SDL.flip s
-  loop gs t0
+  loop gs t0 r
 
 processList :: (a -> b -> a) -> a -> [b] -> a
 processList _ v [] = v
 processList f v (x:xs) = processList f (f v x) xs
 
-loop :: Gs -> Word32 -> IO()
+loop :: Gs -> Word32 -> Resource -> IO()
 loop gs t0 = do
   
   s <- getVideoSurface
@@ -62,7 +62,6 @@ loop gs t0 = do
   blitSurface title Nothing s (Just (Rect 480 60 200 40))
   
   SDL.flip s
-  -- SDLv.updateRect s  (Rect 0 0 200 200)
  
   events <- getEvents pollEvent []
   let gs' = tickLogic (processList handleEvent gs events) (read $ show dt)

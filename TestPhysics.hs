@@ -1,10 +1,8 @@
 import Test.HUnit
 import Physics
 import Model
-import Graphics.UI.SDL.Image as SDLi
-import Graphics.UI.SDL.Video as SDLv
 import Data.Word
-import TestRender (renderList)
+-- import TestRender (renderList)
 
 
 testPlayer = Player (Point 100 100) 100 0 0.5 []
@@ -68,15 +66,24 @@ collideCheckA = TestCase (assertEqual "collide1" True res)
 collideCheckB = TestCase (assertEqual "collide1" False res)
   where res = isTileColliding [(2, 1)] ["0000","0000","0100"]
 
+pixelWall1 = TestCase (assertEqual "pixelWall1" True res)
+  where res = pixelWall (Point 0 0) ["10","00"]
+
+pixelWall0 = TestCase (assertEqual "pixelWall2" False res)
+  where res = pixelWall (Point 50 50) ["10","00"]
+
 ignoredTests = TestList []
 nextPosTests = TestList [nextPosCollissionHalfWay, nextPosBasic, nextPosCollission, nextPosCollissionLeft]
 rangeTests = TestList [yRangeMid, yRangeEdge, xRangeMid, xRangeEdge] 
 gravityTests = TestList [pApplyGravity, pFalling]
 jumpTests = TestList [pJumpInAir, pJumpOnGround]
 playerTests = TestList [playerHaveYAcc]
+collissionTest = TestList[pixelWall1]
 
-physTests = TestList [nextPosTests, rangeTests, playerTests, gravityTests, jumpTests]
+physTests = TestList [nextPosTests, rangeTests, playerTests, gravityTests, jumpTests, collissionTest]
 
-allTests =TestList [physTests, renderList]
+-- , renderList
+
+allTests =TestList [physTests]
 main = runTestTT allTests
 
