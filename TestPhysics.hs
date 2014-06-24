@@ -3,11 +3,12 @@ import Physics
 import Model
 import Data.Word
 
--- Test data
+-- test players
 testPlayer = Player (Point 100 100) 100 0 0.5 []
 testPlayerLeft = Player (Point 100 100) (-100) 0 0.5 []
 airPlayer = Player (Point 100 50) 0 0 0.05 []
 
+--test maps
 testTiles = ["0000000000","0000000000","0000000000","0000000000","1111111111"]
 testTilesWithWall = ["0000000000","0000000000","0000000000","0101000000","1111111111"]
 
@@ -33,10 +34,9 @@ playerTests = TestList
     ]
   where f = (\x -> yspeed ( applyGravity airPlayer x))
 
--- rangeTests = TestList [yRangeMid, yRangeEdge, xRangeMid, xRangeEdge] 
 rangeTests = TestList 
     [ "yRangeEdge" ~: [2,3] ~=? affectYRange 100.0
-    , "yRangeMid"  ~: [1,2,3] ~=? affectYRange 80.0
+    , "yRangeMid" ~: [1,2,3] ~=? affectYRange 80.0
     , "xRangeEdge" ~: [2] ~=? affectXRange 100
     , "xRangeMid" ~: [1,2] ~=? affectXRange 80
     ]
