@@ -30,8 +30,25 @@ roundToNearestTile x tileSize = fromIntegral $  floored - change
 getDist :: Float -> Int -> Float
 getDist speed dt = speed * (fromIntegral dt) / 1000.0
 
+nextXPos :: Player -> [[Char]] -> Int -> Float
+nextXPos player tiles dt = finalx
+  where ps = pos player
+        xdist = getDist (xspeed player) dt
+        ydist = getDist (yspeed player) dt
+        oldx = xpos ps
+        oldy = ypos ps
+        x' = oldx + (xdist)
+        y' = oldy + (ydist)
+        xelement
+          | xdist > 0.0 = last $ affectXRange x'
+          | otherwise = head $ affectXRange x'
+        xCheck = [(xelement, b) | b <- (affectYRange y')]
+        finalx
+          | isTileColliding xCheck tiles = (roundToNearestTile (xpos ps) 50)
+          | otherwise = x'
+
 nextPos :: Player -> [[Char]] -> Int -> Point
-nextPos player tiles dt = Point finalx finaly
+nextPos player tiles dt = Point (nextXPos player tiles dt) finaly
   where ps = pos player
         xdist = getDist (xspeed player) dt
         ydist = getDist (yspeed player) dt
