@@ -47,31 +47,39 @@ nextXPos player tiles dt = finalx
           | isTileColliding xCheck tiles = (roundToNearestTile (xpos ps) 50)
           | otherwise = x'
 
+findFirstFree :: Float -> Float -> Float -> [[Char]] -> Float
+findFirstFree cury ymod x tileset
+  | pixelWall (Point x cury) tileset = findFirstFree (cury + ymod) ymod x tileset
+  | otherwise = cury
+
 nextPos :: Player -> [[Char]] -> Int -> Point
-nextPos player tiles dt = Point (nextXPos player tiles dt) finaly
+nextPos player tiles dt = Point finalx finaly
   where ps = pos player
+        finalx = nextXPos player tiles dt
         xdist = getDist (xspeed player) dt
         ydist = getDist (yspeed player) dt
         oldx = xpos ps
         oldy = ypos ps
         x' = oldx + (xdist)
         y' = oldy + (ydist)
-        xelement
-          | xdist > 0.0 = last $ affectXRange x'
-          | otherwise = head $ affectXRange x'
         yelement 
           | ydist > 0.0 = last $ affectYRange y'
           | otherwise = head $ affectYRange y'
-        xCheck = [(xelement, b) | b <- (affectYRange y')]
         yCheck = [(a, yelement) | a <- (affectXRange x')]
-        finalx = if isTileColliding xCheck tiles 
-                  then (roundToNearestTile (xpos ps) 50)
-                  else x'
-        finaly 
-          | isTileColliding yCheck tiles = (roundToNearestTile (xpos ps) 50)
+        footY = y' + 99
+        finaly  
+          | pixelWall (Point finalx footY) tiles = (findFirstFree footY (-1.0) finalx tiles) - 99
           | otherwise = y'
+          -- | isTileColliding yCheck tiles = xpos ps -- (roundToNearestTile (xpos ps) 50)
+          -- | otherwise = y'
 
-isPlayerOnGround a b = True
+addToPoint :: Point -> Float -> Float -> Point
+addToPoint p x y = Point ((xpos p) + x) ((ypos p) + y)
+
+isPlayerOnGround p tiles = (not a) && b
+  where a = pixelWall (addToPoint (pos p) 0 99) tiles
+        b = pixelWall (addToPoint (pos p) 0 100) tiles
+
 
 jump :: Player -> [[Char]] -> Player
 jump p m

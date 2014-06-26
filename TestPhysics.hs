@@ -7,6 +7,7 @@ import Data.Word
 testPlayer = Player (Point 100 100) 100 0 0.5 []
 testPlayerLeft = Player (Point 100 100) (-100) 0 0.5 []
 airPlayer = Player (Point 100 50) 0 0 0.05 []
+downPlayer = Player (Point 100 95) 0 100 0.05 []
 
 --test maps
 testTiles = ["0000000000","0000000000","0000000000","0000000000","1111111111"]
@@ -17,6 +18,11 @@ nextPosTests = TestList
     , "Simple collision test" ~: (Point 100 100) ~=? nextPos testPlayer testTilesWithWall 10
     , "Improve collission!" ~: (Point 100 100) ~=? nextPos (Player (Point 99 100) 200 0 0.5 []) testTilesWithWall 10
     , "Simple collision test left" ~: (Point 100 100) ~=? nextPos testPlayerLeft testTilesWithWall 10
+    , "Simple y-collission" ~: (Point 100 100) ~=? nextPos downPlayer testTiles 100
+    ]
+
+findFirstTest = TestList
+    [ "basic find first" ~: 49.0 ~=? findFirstFree 55.0 (-1.0) 10.0 ["00","11"]
     ]
 
 gravityTests = TestList 
@@ -50,10 +56,13 @@ collissionTests = TestList
 
 pixelCheck = TestList
     [ "pixelWall1" ~: True ~=? pixelWall (Point 0 0) ["10","00"]
-    , "pixelWall2" ~: False ~=? pixelWall (Point 50 50) ["10","00"]
+    , "pixelWall2" ~: True ~=? pixelWall (Point 40 40) ["10","00"]
+    , "pixelWall3" ~: False ~=? pixelWall (Point 50 50) ["10","00"]
+    , "pixelWall4" ~: False ~=? pixelWall (Point 200 199) testTiles
+    , "pixelWall5" ~: True ~=? pixelWall (Point 10.0 55.0) ["00","11"]
     ]
 
-physTests = TestList [nextPosTests, rangeTests, playerTests, gravityTests, jumpTests, pixelCheck, collissionTests]
+physTests = TestList [nextPosTests, rangeTests, playerTests, gravityTests, jumpTests, pixelCheck, collissionTests, findFirstTest]
 
 allTests =TestList [physTests]
 main = runTestTT allTests

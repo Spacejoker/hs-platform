@@ -1,3 +1,4 @@
+test bottom left and bottom right pixel
 fix jump and add gravty to main loop
 add slope-tiles + collission
 add rendering
