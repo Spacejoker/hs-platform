@@ -8,6 +8,7 @@ testPlayer = Player (Point 100 100) 100 0 0.5 []
 testPlayerLeft = Player (Point 100 100) (-100) 0 0.5 []
 airPlayer = Player (Point 100 50) 0 0 0.05 []
 downPlayer = Player (Point 100 95) 0 100 0.05 []
+edgePlayer = Player (Point 20 0) 0 100 0.05 []
 
 --test maps
 testTiles = ["0000000000","0000000000","0000000000","0000000000","1111111111"]
@@ -19,6 +20,7 @@ nextPosTests = TestList
     , "Improve collission!" ~: (Point 100 100) ~=? nextPos (Player (Point 99 100) 200 0 0.5 []) testTilesWithWall 10
     , "Simple collision test left" ~: (Point 100 100) ~=? nextPos testPlayerLeft testTilesWithWall 10
     , "Simple y-collission" ~: (Point 100 100) ~=? nextPos downPlayer testTiles 100
+    , "y collission on edge" ~: (Point 20 1) ~=? nextPos downPlayer ["000000","000000","011111","111111"] 100
     ]
 
 findFirstTest = TestList

@@ -1,5 +1,7 @@
 module Model where
 
+import Data.Array
+
 data Point = Point {
   xpos :: Float,
   ypos :: Float
@@ -16,7 +18,7 @@ data Player = Player {
 data Gs = Gs {
   running :: Bool,
   player :: Player,
-  physTiles :: [[Char]]
+  physTiles :: Data.Array
 }
 
 data Animation = Animation {
