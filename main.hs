@@ -10,6 +10,7 @@ import System.Random
 import Data.Word
 
 import Model
+import ModelSdl
 import Physics
 import Render
 
@@ -27,48 +28,50 @@ main = do
 
   setCaption "Platformer" "Platformer" 
   
-  let tiles = ["0000000000","0000000000","1001000000","0001000000","1111111111"]
+  let tiles = ["0000000000","0000000000","0000000000","0000000000","1111111111"]
   test1 <- SDLi.load "image/test1.png"
   test2 <- SDLi.load "image/test2.png"
   playerImg <- SDLi.load "image/player.png"
   runImg <- SDLi.load "image/mario.png"
-  let runAnim = Animation runImg 100 100 [0, 1] 100
+  let surfaces = [test1, test2, playerImg, runImg]
+  let graphics = Graphics surfaces
+  let runAnim = Animation Tile1 100 100 [0, 1] 100
   let panims = [runAnim]
-  let p = Player (Point 50 50) 0 0 0.5 panims
+  let p = Player (Point 50 50) 0 0 0.5 panims PlayerSprite
   let tileset = [test1, test2]
-  let r = Resource font tileset playerImg
-  let gs = Gs True p tiles
+  -- let r = Resource font tileset playerImg
+  let gs = Gs True p tiles []
   s <- getVideoSurface
 
-  title <- renderTextSolid font "Score" (Color 255 0 0)
-  blitSurface title Nothing s (Just (Rect 480 60 200 40))
+  -- title <- renderTextSolid font "Score" (Color 255 0 0)
+  -- blitSurface title Nothing s (Just (Rect 480 60 200 40))
   
   t0 <- getTicks 
   SDL.flip s
-  loop gs t0 r
+  loop gs t0 graphics
 
 processList :: (a -> b -> a) -> a -> [b] -> a
 processList _ v [] = v
 processList f v (x:xs) = processList f (f v x) xs
 
-loop :: Gs -> Word32 -> Resource -> IO()
-loop gs t0 = do
+loop :: Gs -> Word32 -> Graphics -> IO()
+loop gs t0 graphics = do
   
   s <- getVideoSurface
   t <- getTicks
   let dt = t - t0
 
-  title <- renderTextSolid (font $ res gs) "Score" (Color 255 0 0)
-  blitSurface title Nothing s (Just (Rect 480 60 200 40))
+  --title <- renderTextSolid (font $ res gs) "Score" (Color 255 0 0)
+  --blitSurface title Nothing s (Just (Rect 480 60 200 40))
   
   SDL.flip s
  
   events <- getEvents pollEvent []
   let gs' = tickLogic (processList handleEvent gs events) (read $ show dt)
-  render gs' (read $ show dt)
+  render gs' graphics (read $ show dt)
 
   if (running gs')
-    then loop gs' t
+    then loop gs' t graphics
     else return ()
 
 tickLogic :: Gs -> Word32 -> Gs
@@ -79,7 +82,8 @@ tickLogic gs dt = do
   let newx = oldx + (xspeed p)
   let newy = oldy
   let pos' = nextPos p (physTiles gs) (read $ show dt)
-  gs { player = (player gs){ pos = pos'} }
+  let player' = (player gs){pos=pos'} --(applyGravity (player gs) (read $ show dt))
+  gs { player = applyGravity player' (read $ show dt) }
 
 getEvents :: IO Event -> [Event] -> IO [Event]
 getEvents pEvent es = do

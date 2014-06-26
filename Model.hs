@@ -1,7 +1,5 @@
 module Model where
 
-import Data.Array
-
 data Point = Point {
   xpos :: Float,
   ypos :: Float
@@ -12,19 +10,24 @@ data Player = Player {
   xspeed :: Float,
   yspeed :: Float,
   gravity :: Float,
-  playerAnimations :: [Animation]
+  playerAnimations :: [Animation],
+  playerSurfaceId :: SurfaceId
 }
 
 data Gs = Gs {
   running :: Bool,
   player :: Player,
-  physTiles :: Data.Array
+  physTiles :: [[Char]],
+  graphics :: [SurfaceId]
 }
 
 data Animation = Animation {
-  animImageResId :: Int,
+  animSurfaceId :: SurfaceId,
   height :: Int,
   width :: Int,
   frameOrder :: [Int],
   frameTime :: Int
 }
+
+data SurfaceId = Tile1 | Tile2 | PlayerSprite
+  deriving (Enum)
