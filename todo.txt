@@ -3,3 +3,12 @@ fix jump and add gravty to main loop
 add slope-tiles + collission
 add rendering
 fix O(log n) access in tiles, preferably O(1)
+
+
+other
+learn gregg shorthand
+
+
+Compis
+CWF
+BuildTools
