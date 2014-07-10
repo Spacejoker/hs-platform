@@ -12,3 +12,6 @@ data Monster = Monster {
   monsterName :: String,
   monsterLevel :: Int
 } deriving (Show, Eq)
+
+type Rect = (Int, Int, Int, Int)
+

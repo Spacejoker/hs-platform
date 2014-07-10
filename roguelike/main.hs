@@ -1,12 +1,14 @@
-{-# LANGUAGE ForeignFunctionInterface #-}
+-- {# LANGUAGE ForeignFunctionInterface #-}
 import Data.Char
 import Foreign.C.Types
 
 import System.Console.Haskeline
+import System.Random
 
 import Model
 import DropTree
 import Item
+import MapGenerator
     
 import Prelude hiding (Either(..))
 
@@ -21,7 +23,8 @@ type Coord = (Int, Int)
 
 data World = World {
   wHero :: Coord,
-  wRedraw :: [Coord]
+  wRedraw :: [Coord],
+  wLevel :: [[Char]]
 }
 
 data Input = Up
@@ -39,8 +42,18 @@ main = do
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid White ]
   clearScreen
-  drawLevelMap 0 levelMap
-  gameLoop $ World (3, 3) []
+  level <- genMap 20 20 2
+  startingPosition <- getLevelFreeSpot level
+  drawLevelMap 0 (lLayout level)
+  gameLoop $ World startingPosition [] (lLayout level)
+
+getLevelFreeSpot :: Level -> IO(Coord)
+getLevelFreeSpot level@(Level layout mapWidth mapHeight) = do
+  x <- getStdRandom(randomR(0, mapWidth-1))
+  y <- getStdRandom(randomR(0, mapHeight-1))
+  if freeTile (x, y) layout
+    then return (x, y)
+    else getLevelFreeSpot level
 
 getInput :: IO(Input)
 getInput = do
@@ -53,8 +66,8 @@ getInput = do
     's' -> return Right
     _ -> getInput
 
-gameLoop world@(World hero redraws) = do
-  drawRedraws redraws
+gameLoop world@(World hero redraws level) = do
+  drawRedraws redraws level
   drawCharacter hero
   input <- getInput
   let world' = updateState world input
@@ -62,15 +75,15 @@ gameLoop world@(World hero redraws) = do
     Exit -> return ()
     _ -> gameLoop world'
 
-drawRedraws :: [(Int, Int)] -> IO()
-drawRedraws [] = return()
-drawRedraws ((x, y):tail) = do
+drawRedraws :: [(Int, Int)] -> [[Char]] -> IO()
+drawRedraws [] _ = return()
+drawRedraws ((x, y):tail) level = do
   setCursorPosition y x
-  putStrLn [((levelMap !! y) !! x)]
-  drawRedraws tail
+  putStrLn [((level !! y) !! x)]
+  drawRedraws tail level
 
-updateState world@(World hero redraws) input = do
-  let hero' = handleAction hero input
+updateState world@(World hero redraws level) input = do
+  let hero' = handleAction hero input level
   let redraw' = (wRedraw world) ++ [hero]
   world { wHero = hero', wRedraw = redraw' }
 
@@ -89,7 +102,7 @@ drawLevelMap y (z:zs) = do
   drawLevelMap (y+1) zs
   
 
-levelMap = 
+testMap = 
   [ "####################"
   , "#..................#"
   , "#......##..........#"
@@ -113,17 +126,17 @@ levelMap =
   , "####################"
   ]
 
-freeTile (x, y) = x >= 0 && x <= 20 && y >= 0 && y < 20 && levelValue (x, y) == '.'
+freeTile (x, y) level = levelValue (x, y) level == '.'
 
-levelValue (x, y) = (levelMap !! y) !! x
+levelValue (x, y) level = (level !! y) !! x
 
 
-handleAction hero@(heroX, heroY) input = newPos
+handleAction hero@(heroX, heroY) input level = newPos
   where newCoord = case input of
                      Up -> ( heroX, heroY - 1 )
                      Down -> ( heroX, heroY + 1)
                      Left -> ( heroX - 1, heroY ) 
                      Right -> ( heroX + 1, heroY ) 
         newPos
-          | freeTile newCoord = newCoord
+          | freeTile newCoord level = newCoord
           | otherwise = (heroX, heroY)
