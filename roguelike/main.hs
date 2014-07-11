@@ -19,20 +19,6 @@ getHiddenChar = fmap (chr.fromEnum) c_getch
 foreign import ccall unsafe "conio.h getch"
   c_getch :: IO CInt
 
-type Coord = (Int, Int)
-
-data World = World {
-  wHero :: Coord,
-  wRedraw :: [Coord],
-  wLevel :: [[Char]]
-}
-
-data Input = Up
-           | Down
-           | Left
-           | Right
-           | Exit
-           deriving (Eq, Show)
 
 main = do
   hSetEcho stdin False
@@ -42,7 +28,7 @@ main = do
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid White ]
   clearScreen
-  level <- genMap 20 20 2
+  level <- genMap 60 60 30
   startingPosition <- getLevelFreeSpot level
   drawLevelMap 0 (lLayout level)
   gameLoop $ World startingPosition [] (lLayout level)

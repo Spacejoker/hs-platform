@@ -4,11 +4,11 @@ import Model
 import Item
 import Monster
 import LootGenerator
-import MapGenerator (genMap)
+import MapGenerator
 
 
 main = do
-  m <- genMap
-  mapM_ putStrLn m
+  m <- genMap 50 50 20
+  mapM_ putStrLn (lLayout m)
   return ()
 

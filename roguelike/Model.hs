@@ -15,3 +15,17 @@ data Monster = Monster {
 
 type Rect = (Int, Int, Int, Int)
 
+type Coord = (Int, Int)
+
+data World = World {
+  wHero :: Coord,
+  wRedraw :: [Coord],
+  wLevel :: [[Char]]
+}
+
+data Input = Up
+           | Down
+           | Left
+           | Right
+           | Exit
+           deriving (Eq, Show)

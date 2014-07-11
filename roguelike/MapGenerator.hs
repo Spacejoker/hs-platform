@@ -12,15 +12,20 @@ data Level = Level {
 genMap :: Int -> Int -> Int -> IO(Level)
 genMap w h numRooms = do
   rooms <- genRooms numRooms w h
-  let layout = makeMap 0 rooms w h
-  let layout' = connectRooms layout
+  let level = Level (makeMap 0 rooms w h) w h
+  let layout' = connectRooms level
   return (Level layout' w h)
 
-connectRooms :: Level -> [[Char]]
-connectRooms level@(Level layout w h) = level
-  where startCoord = findFreeCoord level w h
 
-findFreeCoord 
+connectRooms :: Level -> [[Char]]
+connectRooms level@(Level layout w h) = layout
+  where startCoord = findFreeCoord layout w h
+
+findFreeCoord :: [[Char]] -> Int -> Int -> [Coord]
+findFreeCoord layout w h = [(x, y) | x <- [0..(w-1)], y <- [0..(h-1)], valueAt (x, y) /= '#']
+
+valueAt :: Coord -> [[Char]] -> Char
+valueAt (x, y) l = (l !! y) !! x
 
 genRooms :: Int -> Int -> Int -> IO( [Rect] )
 genRooms 0 _ _ = return []
