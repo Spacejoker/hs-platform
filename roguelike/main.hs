@@ -19,7 +19,6 @@ getHiddenChar = fmap (chr.fromEnum) c_getch
 foreign import ccall unsafe "conio.h getch"
   c_getch :: IO CInt
 
-
 main = do
   hSetEcho stdin False
   hSetBuffering stdout NoBuffering
@@ -28,7 +27,7 @@ main = do
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid White ]
   clearScreen
-  level <- genMap 60 60 5
+  level <- genMap 60 60 4
   startPos <- getLevelFreeSpot (lLayout level)
   let redrawInit = [(x, y) | x <- [0..59], y <- [0..59]]
   gameLoop $ World startPos redrawInit level
@@ -36,7 +35,7 @@ main = do
 getLevelFreeSpot :: [MapCoord] -> IO(Coord)
 getLevelFreeSpot c = do
   p <- getStdRandom(randomR(0, (length c)-1))
-  let (x, y, _) = c !! 0
+  let (x, y, _) = c !! p
   return ((x, y))
 
 getInput :: IO(Input)
