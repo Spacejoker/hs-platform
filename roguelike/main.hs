@@ -28,18 +28,16 @@ main = do
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid White ]
   clearScreen
-  level <- genMap 60 60 30
-  startingPosition <- getLevelFreeSpot level
-  drawLevelMap 0 (lLayout level)
-  gameLoop $ World startingPosition [] (lLayout level)
+  level <- genMap 60 60 5
+  startPos <- getLevelFreeSpot (lLayout level)
+  let redrawInit = [(x, y) | x <- [0..59], y <- [0..59]]
+  gameLoop $ World startPos redrawInit level
 
-getLevelFreeSpot :: Level -> IO(Coord)
-getLevelFreeSpot level@(Level layout mapWidth mapHeight) = do
-  x <- getStdRandom(randomR(0, mapWidth-1))
-  y <- getStdRandom(randomR(0, mapHeight-1))
-  if freeTile (x, y) layout
-    then return (x, y)
-    else getLevelFreeSpot level
+getLevelFreeSpot :: [MapCoord] -> IO(Coord)
+getLevelFreeSpot c = do
+  p <- getStdRandom(randomR(0, (length c)-1))
+  let (x, y, _) = c !! 0
+  return ((x, y))
 
 getInput :: IO(Input)
 getInput = do
@@ -53,20 +51,27 @@ getInput = do
     _ -> getInput
 
 gameLoop world@(World hero redraws level) = do
-  drawRedraws redraws level
+  drawRedraws redraws (lLayout level)
+  let world' = world { wRedraw = [] }
   drawCharacter hero
   input <- getInput
-  let world' = updateState world input
+  let world'' = updateState world' input
   case input of
     Exit -> return ()
-    _ -> gameLoop world'
+    _ -> gameLoop world''
 
-drawRedraws :: [(Int, Int)] -> [[Char]] -> IO()
+drawRedraws :: [(Int, Int)] -> [MapCoord] -> IO()
 drawRedraws [] _ = return()
-drawRedraws ((x, y):tail) level = do
+drawRedraws ((x, y):xs) level = do
   setCursorPosition y x
-  putStrLn [((level !! y) !! x)]
-  drawRedraws tail level
+  putStrLn [(myGetChar (x, y) level)]
+  drawRedraws xs level
+
+myGetChar :: Coord -> [MapCoord] -> Char
+myGetChar _ [] = '#'
+myGetChar (x, y) ((x', y', val):xs)
+  | x == x' && y == y' = val
+  | otherwise = myGetChar (x, y) xs
 
 updateState world@(World hero redraws level) input = do
   let hero' = handleAction hero input level
@@ -80,43 +85,10 @@ drawCharacter (heroX, heroY) = do
   putStrLn "@"
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid White ]
+freeTile :: Coord -> [MapCoord] -> Bool
+freeTile (x, y) level = (length $ filter (\(x', y', _) -> x' == x && y' == y) level) > 0
 
-drawLevelMap _ [] = return ()
-drawLevelMap y (z:zs) = do
-  setCursorPosition y 0
-  putStrLn z
-  drawLevelMap (y+1) zs
-  
-
-testMap = 
-  [ "####################"
-  , "#..................#"
-  , "#......##..........#"
-  , "#.....#............#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "#..................#"
-  , "####################"
-  ]
-
-freeTile (x, y) level = levelValue (x, y) level == '.'
-
-levelValue (x, y) level = (level !! y) !! x
-
-
+handleAction :: Coord -> Input -> Level -> (Int, Int)
 handleAction hero@(heroX, heroY) input level = newPos
   where newCoord = case input of
                      Up -> ( heroX, heroY - 1 )
@@ -124,5 +96,5 @@ handleAction hero@(heroX, heroY) input level = newPos
                      Left -> ( heroX - 1, heroY ) 
                      Right -> ( heroX + 1, heroY ) 
         newPos
-          | freeTile newCoord level = newCoord
+          | freeTile newCoord (lLayout level) = newCoord
           | otherwise = (heroX, heroY)

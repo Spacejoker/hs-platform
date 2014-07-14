@@ -2,30 +2,33 @@ module MapGenerator where
 
 import System.Random
 import Model
+import Data.List
 
-data Level = Level {
-  lLayout :: [[Char]],
-  lWidth :: Int,
-  lHeight :: Int
-}  
 
 genMap :: Int -> Int -> Int -> IO(Level)
 genMap w h numRooms = do
   rooms <- genRooms numRooms w h
-  let level = Level (makeMap 0 rooms w h) w h
+  let level = Level (makeMap rooms) w h
   let layout' = connectRooms level
   return (Level layout' w h)
 
-
-connectRooms :: Level -> [[Char]]
+connectRooms :: Level -> [MapCoord]
 connectRooms level@(Level layout w h) = layout
-  where startCoord = findFreeCoord layout w h
+  where free = findFreeMapCoord layout
+        reach = dfs free [(head free)] []
 
-findFreeCoord :: [[Char]] -> Int -> Int -> [Coord]
-findFreeCoord layout w h = [(x, y) | x <- [0..(w-1)], y <- [0..(h-1)], valueAt (x, y) /= '#']
+dfs :: [MapCoord] -> [MapCoord] -> [MapCoord] -> [MapCoord]
+dfs searchSpace ((x, y, z):xs) visited = union (inBoth ++ [(x, y, z)]) nextStep
+  where cands = [(x+1,y, z), (x-1, y, z), (x, y+1, z), (x, y-1, z)]
+        inBoth = intersect (cands) searchSpace
+        nextStep = dfs searchSpace ((xs ++ inBoth) \\ visited) ((x, y, z):visited)
 
-valueAt :: Coord -> [[Char]] -> Char
-valueAt (x, y) l = (l !! y) !! x
+findFreeMapCoord :: [MapCoord] -> [MapCoord]
+-- findFreeMapCoord layout w h = [(x, y, ) | x <- [0..(w-1)], y <- [0..(h-1)], valueAt (x, y) /= '#']
+findFreeMapCoord list = filter (\(x, y, z) -> z /= '#') list
+
+-- valueAt :: MapCoord -> [[Char]] -> Char
+-- valueAt (x, y) l = (l !! y) !! x
 
 genRooms :: Int -> Int -> Int -> IO( [Rect] )
 genRooms 0 _ _ = return []
@@ -37,17 +40,10 @@ genRooms i w h= do
   nextRooms <- genRooms (i-1) w h
   return ((w',h',x0,y0):nextRooms)
 
-makeMap :: Int -> [Rect] -> Int -> Int -> [[Char]]
-makeMap y list mapWidth mapHeight
-  | y == mapHeight = []
-  | otherwise = ((makeMapRow 0 y list mapWidth mapHeight) : makeMap (y+1) list mapWidth mapHeight) 
-
-makeMapRow :: Int -> Int -> [Rect] -> Int -> Int -> [Char]
-makeMapRow x y list mapWidth mapHeight
-  | x == mapWidth = []
-  | isInRect x y mapWidth mapHeight list = "." ++ rest
-  | otherwise = "#" ++ rest
-    where rest = makeMapRow (x+1) y list mapWidth mapHeight
+makeMap :: [Rect] -> [MapCoord]
+makeMap [] = []
+makeMap ((x,y,w,h):xs) = union ([(x', y', '.') | x' <- [x..(x+w-1)], y' <- [y..(y+h-1)]]) next
+  where next = makeMap xs
 
 isInRect :: Int -> Int -> Int -> Int -> [Rect] -> Bool
 isInRect _ _ _ _ [] = False

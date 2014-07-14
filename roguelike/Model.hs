@@ -16,12 +16,19 @@ data Monster = Monster {
 type Rect = (Int, Int, Int, Int)
 
 type Coord = (Int, Int)
+type MapCoord = (Int, Int, Char)
 
 data World = World {
   wHero :: Coord,
   wRedraw :: [Coord],
-  wLevel :: [[Char]]
+  wLevel :: Level
 }
+
+data Level = Level {
+  lLayout :: [MapCoord],
+  lWidth :: Int,
+  lHeight :: Int
+}  
 
 data Input = Up
            | Down
