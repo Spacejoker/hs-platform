@@ -9,15 +9,19 @@ genMap :: Int -> Int -> Int -> IO(Level)
 genMap w h numRooms = do
   rooms <- genRooms numRooms w h
   let level = makeMap rooms
-  let layout' = connectRooms level
+  let layout' = connectRooms ( rmdups level ) 10
+  -- let layout' = rmdups level
   return (Level layout' w h)
 
-connectRooms :: [MapCoord] -> [MapCoord]
-connectRooms layout
-  | length nonReach > 0 = connectRooms ( union layout added)
+rmdups :: (Ord a) => [a] -> [a]
+rmdups = map head . group . sort
+
+connectRooms :: [MapCoord] -> Int -> [MapCoord]
+connectRooms layout cnt
+  | length nonReach > 0 && cnt > 0 = connectRooms ( layout ++ added) (cnt-1)
   | otherwise = reach
   where reach = dfs layout [(head layout)] []
-        nonReach = layout \\ reach
+        nonReach = filter (\x -> not $ elem x reach) layout
         added = makePath (head reach) (head nonReach)
 
 makePath :: MapCoord -> MapCoord -> [MapCoord]
@@ -33,16 +37,16 @@ dfs searchSpace ((x, y, z):xs) visited
 genRooms :: Int -> Int -> Int -> IO( [Rect] )
 genRooms 0 _ _ = return []
 genRooms i w h= do
-  w' <- getStdRandom (randomR (2, quot w 8))
-  h' <- getStdRandom (randomR (2, quot h 8))
+  w' <- getStdRandom (randomR (2, 4))
+  h' <- getStdRandom (randomR (2, 4))
   x0 <- getStdRandom (randomR (0, w - w'))
   y0 <- getStdRandom (randomR (0, h - h'))
   nextRooms <- genRooms (i-1) w h
-  return ((w',h',x0,y0):nextRooms)
+  return ((x0, y0, w',h'):nextRooms)
 
 makeMap :: [Rect] -> [MapCoord]
 makeMap [] = []
-makeMap ((x,y,w,h):xs) = union ([(x', y', '.') | x' <- [x..(x+w-1)], y' <- [y..(y+h-1)]]) next
+makeMap ((x,y,w,h):xs) = ([(x', y', '.') | x' <- [x..(x+w-1)], y' <- [y..(y+h-1)]]) ++ next
   where next = makeMap xs
 
 isInRect :: Int -> Int -> Int -> Int -> [Rect] -> Bool

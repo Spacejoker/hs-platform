@@ -27,7 +27,7 @@ main = do
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid White ]
   clearScreen
-  level <- genMap 60 60 4
+  level <- genMap 60 60 5
   startPos <- getLevelFreeSpot (lLayout level)
   let redrawInit = [(x, y) | x <- [0..59], y <- [0..59]]
   gameLoop $ World startPos redrawInit level
@@ -63,7 +63,8 @@ drawRedraws :: [(Int, Int)] -> [MapCoord] -> IO()
 drawRedraws [] _ = return()
 drawRedraws ((x, y):xs) level = do
   setCursorPosition y x
-  putStrLn [(myGetChar (x, y) level)]
+  let nextChar = (myGetChar (x, y) level)
+  putStrLn $ [nextChar] 
   drawRedraws xs level
 
 myGetChar :: Coord -> [MapCoord] -> Char

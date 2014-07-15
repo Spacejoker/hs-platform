@@ -22,21 +22,21 @@ dfsTest = TestList
   , "DFS large" ~: largeSize ^ 2 ~=? length (dfs largeConnected [(0,0,'.')] []) 
   ]
 
-dim = 100
+dim = 40
 roomlen = 15
 
 largeMap = [(x, y, '.') | x <- [0..dim], y <- [0..dim], (x < roomlen && y < roomlen) || (x>(dim - roomlen) && y > (dim - roomlen))]
 
 connectRoomTest = TestList 
-  [ "connect two small rooms" ~: 5 ~=? length ( connectRooms twoSmallRooms )
-  , "connect large map" ~: True ~=? length (connectRooms largeMap) > roomlen*roomlen*2
+  [ "connect two small rooms" ~: 5 ~=? length ( connectRooms twoSmallRooms 1 )
+  , "connect large map" ~: True ~=? length (connectRooms largeMap 1) > roomlen*roomlen*2
   ]
 
-t = TestList [dfsTest]
+t = TestList [dfsTest, connectRoomTest]
 
 main = do
-  -- runTestTT t
-  let ans = dfs largeConnected [(0,0,'.')] []
-  putStrLn $ show $ head ans
+  runTestTT t
+  --let ans = dfs largeConnected [(0,0,'.')] []
+  --putStrLn $ show $ head ans
   --return (ans)
 
