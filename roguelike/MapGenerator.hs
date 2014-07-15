@@ -5,11 +5,13 @@ import Model
 import Data.List
 
 
-genMap :: Int -> Int -> Int -> IO([[Char]])
+genMap :: Int -> Int -> Int -> IO(Level)
 genMap w h numRooms = do
   rooms <- genRooms numRooms w h []
   let nonOverlap = removeOverlapping rooms []
-  return (map (makeRow nonOverlap w) [0..(h-1)])
+  let layout = map (makeRow nonOverlap w) [0..(h-1)]
+  let retLevel = alterPositions (Level layout w h) [(5,5,'>')] 
+  return retLevel
 
 makeRow :: [Rect] -> Int -> Int -> String
 makeRow rooms w y = [ (\x -> if x == True then '.' else '#') $ roomAt x y rooms | x <- [0..(w-1)] ] 
@@ -28,7 +30,6 @@ removeOverlapping (x : xs) used = removeOverlapping xs inUse
 generateCorridors :: Rect -> [Rect] -> [Rect]
 generateCorridors _ [] = []
 generateCorridors (x1, _, y1, _) ((x2, _, y2, _):xs) = [(x1, x2, y1 ,y1), (x2, x2, y1, y2)]
-
 
 freeRoom :: Rect -> [Rect] -> Bool
 freeRoom _ [] = True
@@ -49,21 +50,20 @@ genRooms i w h current = do
   y0 <- getStdRandom (randomR (0, h - h'))
   genRooms (i-1) w h ((x0, x0 + w' - 1, y0, y0 + h' - 1):current)
           
-connectRooms :: [MapCoord] -> Int -> [MapCoord]
-connectRooms layout cnt
-  | length nonReach > 0 && cnt > 0 = connectRooms ( layout ++ added) (cnt-1)
-  | otherwise = reach
-  where reach = dfs layout [(head layout)] []
-        nonReach = filter (\x -> not $ elem x reach) layout
-        added = makePath (head reach) (head nonReach)
+--redo this shit
+alterPositions :: Level -> [(Int, Int, Char)] -> Level
+alterPositions level@(Level lLayout w h ) changes = level {lLayout = newLayout}
+  where newLayout = alterRows lLayout w h changes
 
-makePath :: MapCoord -> MapCoord -> [MapCoord]
-makePath (x0, y0, _) (x1, y1, _) = [(x, y, '.') | x <- [x0 .. x1], y <- [y0 .. y1], x == x1 || y == y0]
+alterRows :: [String] -> Int -> Int -> [(Int, Int, Char)] -> [String]
+alterRows _ _ 0 _ = []
+alterRows (x:xs) w y changes= ((alterRow x w (filter (\(_, y', _) -> y' == y) changes) 0):(alterRows xs w y changes))
 
-dfs :: [MapCoord] -> [MapCoord] -> [MapCoord] -> [MapCoord]
-dfs _ [] visited = visited
-dfs searchSpace ((x, y, z):xs) visited 
-  | elem (x, y, z) visited || (not $ elem (x, y, z) searchSpace) = dfs searchSpace xs visited
-  | otherwise = dfs searchSpace (cands ++ xs) ((x, y, z) : visited) 
-            where cands = [(x+1,y, z), (x-1, y, z), (x, y+1, z), (x, y-1, z)]
-
+alterRow :: String -> Int -> [(Int, Int, Char)] -> Int -> String
+alterRow (s:ss) w changes x  
+  | x == w = []
+  | length thisChange > 0 = (val:rest)
+  | otherwise = (s:rest)
+  where thisChange = filter (\(x', _, _) -> x' == x) changes
+        rest = alterRow ss w changes (x+1)
+        (_, _, val) = head thisChange

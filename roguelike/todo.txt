@@ -1,1 +1,9 @@
-add items
+Prio
+add items to dungeon
+Maps: basic working
+
+Items: todo
+
+Monsters: todo
+
+LoS: todo

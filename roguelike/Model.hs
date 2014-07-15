@@ -25,7 +25,7 @@ data World = World {
 }
 
 data Level = Level {
-  lLayout :: [MapCoord],
+  lLayout :: [[Char]],
   lWidth :: Int,
   lHeight :: Int
 }  
