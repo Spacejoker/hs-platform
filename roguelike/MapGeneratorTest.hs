@@ -35,8 +35,11 @@ connectRoomTest = TestList
 t = TestList [dfsTest, connectRoomTest]
 
 main = do
-  runTestTT t
+  -- runTestTT t
   --let ans = dfs largeConnected [(0,0,'.')] []
   --putStrLn $ show $ head ans
   --return (ans)
+  x <- genMap 50 50 50
+  mapM_ (putStrLn . show) x
+  -- putStrLn $ show x
 
