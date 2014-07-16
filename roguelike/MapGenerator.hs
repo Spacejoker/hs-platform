@@ -79,3 +79,9 @@ make (y, s) = ret
   where z = zip [(0::Int),(1::Int)..] s
         f = filter (\(_, v) -> v /= '#') z
         ret = map (\(x, c) -> (x, y)) f
+
+getRandomFreeCoord :: Level -> IO(Coord)
+getRandomFreeCoord level@(Level layout mapWidth mapHeight) = do
+  let freeCoords = getFreeCoords level
+  x <- getStdRandom(randomR(0, (length freeCoords)-1))
+  return (freeCoords !! x)

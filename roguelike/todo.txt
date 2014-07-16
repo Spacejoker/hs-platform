@@ -1,10 +1,16 @@
 Prio
-add items to dungeon
+generate a full level with
+  - items on floor
+  - mobs
+  - stairs down
 
-Maps: basic working
+Maps: 
 
-Items: todo
+Items: 
 
-Monsters: todo
+Monsters:
 
-LoS: todo
+
+LoS: 
+only show enemies and items close to player
+explore level, show explored in gray
