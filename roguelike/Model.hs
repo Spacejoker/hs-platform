@@ -34,5 +34,9 @@ data Input = Up
            | Down
            | Left
            | Right
+           | UpRight
+           | UpLeft
+           | DownRight
+           | DownLeft
            | Exit
            deriving (Eq, Show)
