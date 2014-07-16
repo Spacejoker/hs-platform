@@ -10,8 +10,8 @@ genMap w h numRooms = do
   rooms <- genRooms numRooms w h []
   let nonOverlap = removeOverlapping rooms []
   let layout = map (makeRow nonOverlap w) [0..(h-1)]
-  let retLevel = alterPositions (Level layout w h) [(5,5,'>')] 
-  return retLevel
+  --let retLevel = alterPositions (Level layout w h) [(5,5,'>')] 
+  return (Level layout w h)
 
 makeRow :: [Rect] -> Int -> Int -> String
 makeRow rooms w y = [ (\x -> if x == True then '.' else '#') $ roomAt x y rooms | x <- [0..(w-1)] ] 
@@ -67,3 +67,15 @@ alterRow (s:ss) w changes x
   where thisChange = filter (\(x', _, _) -> x' == x) changes
         rest = alterRow ss w changes (x+1)
         (_, _, val) = head thisChange
+-- end redo shit
+
+getFreeCoords :: Level -> [(Coord)]
+getFreeCoords level = concat ret
+  where z = zip [0,1..] (lLayout level)
+        ret = map make z
+
+make :: (Int, String) -> [(Coord)]
+make (y, s) = ret 
+  where z = zip [(0::Int),(1::Int)..] s
+        f = filter (\(_, v) -> v /= '#') z
+        ret = map (\(x, c) -> (x, y)) f

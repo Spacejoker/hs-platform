@@ -9,6 +9,7 @@ import Model
 import DropTree
 import Item
 import MapGenerator
+import LootGenerator
     
 import Prelude hiding (Either(..))
 
@@ -28,23 +29,16 @@ main = do
          , SetColor Foreground Vivid White ]
   clearScreen
   level <- genMap 60 60 50
-  startPos <- getLevelFreeSpot level
+  startPos <- getRandomFreeCoord level
   let redrawInit = [(x, y) | x <- [0..59], y <- [0..59]]
-  gameLoop $ World startPos redrawInit level
+  genItems <- genLevelItems 0 (getFreeCoords level) 5 []
+  gameLoop $ World startPos redrawInit level genItems []
 
-getLevelFreeSpot :: Level -> IO(Coord)
-getLevelFreeSpot level@(Level layout mapWidth mapHeight) = do
-  x <- getStdRandom(randomR(0, mapWidth-1))
-  y <- getStdRandom(randomR(0, mapHeight-1))
-  if freeTile (x, y) layout
-    then return (x, y)
-    else getLevelFreeSpot level
-
--- getLevelFreeSpot :: [[Char]] -> IO(Coord)
--- getLevelFreeSpot c = do
-  -- p <- getStdRandom(randomR(0, (length c)-1))
-  -- let (x, y, _) = c !! p
-  -- return ((x, y))
+getRandomFreeCoord :: Level -> IO(Coord)
+getRandomFreeCoord level@(Level layout mapWidth mapHeight) = do
+  let freeCoords = getFreeCoords level
+  x <- getStdRandom(randomR(0, (length freeCoords)-1))
+  return (freeCoords !! x)
 
 getInput :: IO(Input)
 getInput = do
@@ -69,10 +63,11 @@ getInput = do
     '1' -> return DownLeft
     _ -> getInput
 
-gameLoop world@(World hero redraws level) = do
+gameLoop world@(World hero redraws level items mobs) = do
   drawRedraws redraws (lLayout level)
-  let world' = world { wRedraw = [] }
+  drawItems items
   drawCharacter hero
+  let world' = world { wRedraw = [] }
   input <- getInput
   let world'' = updateState world' input
   case input of
@@ -80,19 +75,21 @@ gameLoop world@(World hero redraws level) = do
     _ -> gameLoop world''
 
 drawRedraws :: [(Int, Int)] -> [[Char]] -> IO()
-drawRedraws [] _ = return()
-drawRedraws ((x, y):tail) level = do
-  setCursorPosition y x
-  putStrLn [((level !! y) !! x)]
-  drawRedraws tail level
+drawRedraws list level = do
+  setSGR [ SetConsoleIntensity BoldIntensity
+         , SetColor Foreground Vivid White ]
+  mapM_ (\(x, y) -> do setCursorPosition y x
+                       putStrLn [((level!! y) !! x)]) list
 
---drawRedraws :: [(Int, Int)] -> [MapCoord] -> IO()
---drawRedraws [] _ = return()
---drawRedraws ((x, y):xs) level = do
-  --setCursorPosition y x
-  --let nextChar = (myGetChar (x, y) level)
-  --putStrLn $ [nextChar] 
-  --drawRedraws xs level
+drawItems :: [Item] -> IO()
+drawItems items = do
+  setSGR [ SetConsoleIntensity BoldIntensity
+         , SetColor Foreground Vivid Green ]
+  mapM_ (\x -> case (iPos x) of
+                 Nothing -> return ()
+                 Just (x, y) ->  do setCursorPosition y x
+                                    putStrLn ")"
+        ) items
 
 myGetChar :: Coord -> [MapCoord] -> Char
 myGetChar _ [] = '#'
@@ -100,7 +97,7 @@ myGetChar (x, y) ((x', y', val):xs)
   | x == x' && y == y' = val
   | otherwise = myGetChar (x, y) xs
 
-updateState world@(World hero redraws level) input = do
+updateState world@(World hero redraws level items mobs) input = do
   let hero' = handleAction hero input level
   let redraw' = (wRedraw world) ++ [hero]
   world { wHero = hero', wRedraw = redraw' }
@@ -112,12 +109,10 @@ drawCharacter (heroX, heroY) = do
   putStrLn "@"
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid White ]
+
 freeTile (x, y) level = levelValue (x, y) level == '.'
 
 levelValue (x, y) level = (level !! y) !! x
-
--- freeTile :: Coord -> [MapCoord] -> Bool
--- freeTile (x, y) level = (length $ filter (\(x', y', _) -> x' == x && y' == y) level) > 0
 
 handleAction :: Coord -> Input -> Level -> (Int, Int)
 handleAction hero@(heroX, heroY) input level = newPos

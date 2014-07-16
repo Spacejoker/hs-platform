@@ -8,12 +8,11 @@ tree = Node "Root"
   [ 
     Node "Weapons" 
     [ 
-      Leaf axe,
-      Leaf sword
+      Leaf (axe Nothing),
+      Leaf (sword Nothing)
     ],
-    Node "Armours" 
+    Node "Potions" 
     [
-      Leaf tunic,
-      Leaf boots
+      Leaf (healthPotion Nothing)
     ]
   ]
