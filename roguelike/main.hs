@@ -1,5 +1,6 @@
 import System.Console.Haskeline
 import System.Random
+import Data.Sequence as Seq
 
 import Model
 import DropTree
@@ -9,6 +10,7 @@ import LootGenerator
 import WorldGenerator
 import UserInteraction
 import Render
+import Monster
     
 import Prelude hiding (Either(..))
 
@@ -23,27 +25,31 @@ main = do
   world <- generateWorld 1
   gameLoop world
 
-gameLoop world@(World hero redraws level items mobs) = do
-  drawRedraws redraws (lLayout level)
-  drawItems items
-  drawCharacter hero
-  let world' = world { wRedraw = [] }
+gameLoop world@(World hero redraws level items mobs queue) = do
+  let (nextEvent :< restOfQueue) = Seq.viewl queue
+  case aType nextEvent of 
+    PlayerActionEvent -> do let newQueue = (><) restOfQueue (Seq.singleton nextEvent)
+                            w' <- playerAction world { wActQueue = newQueue}
+                            gameLoop w'
+    MobActionEvent    -> do let newQueue = (><) restOfQueue (Seq.singleton nextEvent)
+                            let Just idx = aMobId nextEvent
+                            let mob = mobs !! idx
+                            w' <- mobAction mob (world { wActQueue = newQueue} )
+                            gameLoop w'
+    _                 -> gameLoop (world { wActQueue = newQueue } )
+                           where newQueue = (><) restOfQueue (Seq.singleton nextEvent)
+
+playerAction :: World -> IO(World)
+playerAction world = do
+  -- drawRedraws redraws (lLayout level)
   input <- getInput
-  let world'' = updateState world' input
-  case input of
-    Exit -> return ()
-    _ -> gameLoop world''
+  let world' = handleAction world input
 
+  -- render here
+  drawRedraws [] $ lLayout $ wLevel world
+  drawItems $ wItems world
+  drawCharacter $ wHero world
+  drawMobs $ wMobs world
 
-myGetChar :: Coord -> [MapCoord] -> Char
-myGetChar _ [] = '#'
-myGetChar (x, y) ((x', y', val):xs)
-  | x == x' && y == y' = val
-  | otherwise = myGetChar (x, y) xs
-
-updateState world@(World hero redraws level items mobs) input = do
-  let hero' = handleAction hero input level
-  let redraw' = (wRedraw world) ++ [hero]
-  world { wHero = hero', wRedraw = redraw' }
-
+  return world'
 

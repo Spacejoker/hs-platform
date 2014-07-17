@@ -1,15 +1,18 @@
 Prio
-generate a full level with
-  - items on floor
-  - mobs
-  - stairs down
+monster move
+
+gameplay:
+make mobs move, introduce attack
+
+Generation:
+system for generating depending on depth + ood
 
 Maps: 
 
 Items: 
 
 Monsters:
-
+Simple walk towards player if close enough
 
 LoS: 
 only show enemies and items close to player

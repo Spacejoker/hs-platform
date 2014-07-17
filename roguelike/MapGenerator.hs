@@ -10,7 +10,6 @@ genMap w h numRooms = do
   rooms <- genRooms numRooms w h []
   let nonOverlap = removeOverlapping rooms []
   let layout = map (makeRow nonOverlap w) [0..(h-1)]
-  --let retLevel = alterPositions (Level layout w h) [(5,5,'>')] 
   return (Level layout w h)
 
 makeRow :: [Rect] -> Int -> Int -> String
@@ -24,8 +23,9 @@ removeOverlapping :: [Rect] -> [Rect] -> [Rect]
 removeOverlapping [] ret = ret
 removeOverlapping (x : xs) used = removeOverlapping xs inUse
   where inUse
-          | freeRoom x used = (x:used) ++ (generateCorridors x used)
-          | otherwise = used
+          | 1 == 1 = (x:used) ++ (generateCorridors x used)
+          -- | freeRoom x used = (x:used) ++ (generateCorridors x used)
+          -- | otherwise = used
 
 generateCorridors :: Rect -> [Rect] -> [Rect]
 generateCorridors _ [] = []
@@ -83,5 +83,6 @@ make (y, s) = ret
 getRandomFreeCoord :: Level -> IO(Coord)
 getRandomFreeCoord level@(Level layout mapWidth mapHeight) = do
   let freeCoords = getFreeCoords level
+  putStrLn $ show $ length freeCoords
   x <- getStdRandom(randomR(0, (length freeCoords)-1))
   return (freeCoords !! x)

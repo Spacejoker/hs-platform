@@ -10,6 +10,13 @@ import Monster
 import qualified Data.Sequence as Seq
 
 miniLevel = Level [".#","#."] 2 2
+smallOpenLevel = Level ["....","....","....","...."] 4 4
+smallPillarLevel = Level ["....",".#..","....","...."] 4 4
+
+testGoblin = goblin (Just (2, 2))
+
+simpleWorld = World (0,0) [] smallOpenLevel [] [testGoblin] Seq.empty
+
 freeCellsTest = TestList
   [ "simple getFreeCoords test" ~: [(0,0), (1,1)] ~=? getFreeCoords miniLevel
   ]
@@ -24,13 +31,16 @@ genMobTest = TestList
                        assert ((length ret) == 5)
   ]
 
-testGoblin = goblin (Just (2, 2))
-simpleWorld = World (0,0) [] (Level ["....","....","....","...."] 2 2) [] [testGoblin] Seq.empty
+
 mobActionTest = TestList
-  [ "attack player" ~: do w' <- mobAction testGoblin simpleWorld
-                          let g' = head $ wMobs w'
-                          let (Just x) = mPos g'
-                          assertEqual "Moving in open space" (1,1) x
+  [ "move towards player" ~: do w' <- mobAction testGoblin simpleWorld
+                                let g' = head $ wMobs w'
+                                let (Just x) = mPos g'
+                                assertEqual "" (1,1) x
+  , "move aronud obstacle" ~: do w' <- mobAction testGoblin (simpleWorld { wLevel = smallPillarLevel } )
+                                 let g' = head $ wMobs w'
+                                 let (Just x) = mPos g'
+                                 assertEqual "" True (elem x [(2,1), (1,2)])
   ]
 
 t = TestList [freeCellsTest, levelLootGeneratorTest, genMobTest, mobActionTest]

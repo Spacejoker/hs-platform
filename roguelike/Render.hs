@@ -5,12 +5,22 @@ import System.IO
 
 import Model
 
-drawRedraws :: [(Int, Int)] -> [[Char]] -> IO()
-drawRedraws list level = do
+drawFullMap :: [[Char]] -> IO()
+drawFullMap level = do
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid White ]
-  mapM_ (\(x, y) -> do setCursorPosition y x
-                       putStrLn [((level!! y) !! x)]) list
+  let zList = zip [0,1..] level
+  mapM_ (\(y, str) -> do setCursorPosition y 0
+                         putStrLn str
+        ) zList
+
+drawRedraws :: [(Int, Int)] -> [String] -> IO()
+drawRedraws _ _ = return()
+-- drawRedraws ((x, y):xs) level = do
+  -- setCursorPosition y x
+  -- let nextChar = (myGetChar (x, y) level)
+  -- putStrLn $ [nextChar] 
+  -- drawRedraws xs level
 
 drawItems :: [Item] -> IO()
 drawItems items = do
@@ -29,3 +39,22 @@ drawCharacter (heroX, heroY) = do
   putStrLn "@"
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid White ]
+
+drawMobs :: [Mob] -> IO()
+drawMobs mobs = do
+  setSGR [ SetConsoleIntensity BoldIntensity
+         , SetColor Foreground Vivid Yellow ]
+  mapM_ (\x -> case (mPos x) of
+                 Nothing -> return ()
+                 Just (x, y) -> do setCursorPosition y x
+                                   putStrLn "G"
+        ) mobs
+  setSGR [ SetConsoleIntensity BoldIntensity
+         , SetColor Foreground Vivid White ]
+
+myGetChar :: Coord -> [MapCoord] -> Char
+myGetChar _ [] = '#'
+myGetChar (x, y) ((x', y', val):xs)
+  | x == x' && y == y' = val
+  | otherwise = myGetChar (x, y) xs
+

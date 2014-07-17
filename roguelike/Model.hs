@@ -1,6 +1,7 @@
 module Model where
 
 import Data.Maybe
+import Data.Sequence
 
 type Rect = (Int, Int, Int, Int)
 type Coord = (Int, Int)
@@ -18,7 +19,8 @@ data Item = Item {
 
 data Mob = Mob {
   mName :: String,
-  mLevel :: Int
+  mLevel :: Int,
+  mPos :: Maybe Coord
 } deriving (Show, Eq)
 
 data Level = Level {
@@ -31,9 +33,20 @@ data World = World {
   wHero :: Coord,
   wRedraw :: [Coord],
   wLevel :: Level,
-  lItems :: [Item],
-  lMobs :: [Mob]
+  wItems :: [Item],
+  wMobs :: [Mob],
+  wActQueue :: Seq ActionEvent
 }
+
+data ActionEventType = PlayerActionEvent
+                     | MobActionEvent
+                     deriving (Eq, Show)
+
+data ActionEvent = ActionEvent {
+  aType :: ActionEventType,
+  aMobId :: Maybe Int
+} deriving (Eq, Show)
+
 
 data Input = Up
            | Down

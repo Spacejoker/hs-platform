@@ -32,8 +32,8 @@ getInput = do
     '1' -> return DownLeft
     _ -> getInput
 
-handleAction :: Coord -> Input -> Level -> (Int, Int)
-handleAction hero@(heroX, heroY) input level = newPos
+handleAction :: World -> Input -> World
+handleAction world input = world { wHero = newPos }
   where newCoord = case input of
                      Up -> ( heroX, heroY - 1 )
                      Down -> ( heroX, heroY + 1)
@@ -43,8 +43,9 @@ handleAction hero@(heroX, heroY) input level = newPos
                      UpLeft -> ( heroX - 1, heroY -1) 
                      DownRight -> ( heroX + 1, heroY +1) 
                      DownLeft -> ( heroX - 1, heroY +1) 
+        (heroX, heroY) = wHero world
         newPos
-          | freeTile newCoord (lLayout level) = newCoord
+          | freeTile newCoord (lLayout $ wLevel world) = newCoord
           | otherwise = (heroX, heroY)
 
 freeTile :: Coord -> [[Char]] -> Bool
