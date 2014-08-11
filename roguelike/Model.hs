@@ -6,6 +6,7 @@ import Data.Sequence
 type Rect = (Int, Int, Int, Int)
 type Coord = (Int, Int)
 type MapCoord = (Int, Int, Char)
+type Terrain = [String]
 
 -- used for drop structure
 data Tree a = Leaf a | Node String [Tree a] deriving (Show, Read, Eq)
@@ -24,7 +25,7 @@ data Mob = Mob {
 } deriving (Show, Eq)
 
 data Level = Level {
-  lLayout :: [[Char]],
+  lLayout :: Terrain,
   lWidth :: Int,
   lHeight :: Int
 }  

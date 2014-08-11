@@ -5,6 +5,7 @@ import System.IO
 
 import Model
 
+-- notice the elegant zip
 drawFullMap :: [[Char]] -> IO()
 drawFullMap level = do
   setSGR [ SetConsoleIntensity BoldIntensity

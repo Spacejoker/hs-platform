@@ -18,6 +18,7 @@ import System.Console.ANSI
 import System.IO
 
 main = do
+  -- putStrLn "test"
   hSetEcho stdin False
   hSetBuffering stdout NoBuffering
   hideCursor
@@ -46,7 +47,8 @@ playerAction world = do
   let world' = handleAction world input
 
   -- render here
-  drawRedraws [] $ lLayout $ wLevel world
+  drawFullMap $ lLayout $ wLevel world
+  -- drawRedraws [] $ lLayout $ wLevel world
   drawItems $ wItems world
   drawCharacter $ wHero world
   drawMobs $ wMobs world

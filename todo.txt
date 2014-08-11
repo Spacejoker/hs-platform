@@ -1,14 +1,15 @@
-test bottom left and bottom right pixel
-fix jump and add gravty to main loop
-add slope-tiles + collission
-add rendering
-fix O(log n) access in tiles, preferably O(1)
-
-
 other
-learn gregg shorthand
-
+gregg shorthand
 
 Compis
 CWF
 BuildTools
+
+Todo
+undo el 020-22 24 24
+undo parking
+transaktioner till finnhammar finans
+
+cleaning check
+ring exjobb check
+undo comhem 90 222 check
