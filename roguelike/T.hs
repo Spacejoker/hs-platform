@@ -16,6 +16,7 @@ smallPillarLevel = Level ["....",".#..","....","...."] 4 4
 testGoblin = goblin (Just (2, 2))
 
 simpleWorld = World (0,0) [] smallOpenLevel [] [testGoblin] Seq.empty
+twoMobsWorld = World (0,0) [] smallOpenLevel [] [goblin (Just (1, 1)), testGoblin] Seq.empty
 
 freeCellsTest = TestList
   [ "simple getFreeCoords test" ~: [(0,0), (1,1)] ~=? getFreeCoords miniLevel
@@ -41,6 +42,8 @@ mobActionTest = TestList
                                  let g' = head $ wMobs w'
                                  let (Just x) = mPos g'
                                  assertEqual "" True (elem x [(2,1), (1,2)])
+  , "One mob per square" ~: do w' <- mobAction testGoblin simpleWorld
+                               assertEqual "" 2 ((length . wMobs) w') -- make sure no mobs removed
   ]
 
 t = TestList [freeCellsTest, levelLootGeneratorTest, genMobTest, mobActionTest]

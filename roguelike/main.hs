@@ -24,6 +24,7 @@ main = do
   hideCursor
   setTitle "Officelike"
   world <- generateWorld 1
+  render world
   gameLoop world
 
 gameLoop world@(World hero redraws level items mobs queue) = do
@@ -34,24 +35,25 @@ gameLoop world@(World hero redraws level items mobs queue) = do
                             gameLoop w'
     MobActionEvent    -> do let newQueue = (><) restOfQueue (Seq.singleton nextEvent)
                             let Just idx = aMobId nextEvent
-                            let mob = mobs !! idx
+                            let mob = head mobs 
                             w' <- mobAction mob (world { wActQueue = newQueue} )
                             gameLoop w'
     _                 -> gameLoop (world { wActQueue = newQueue } )
                            where newQueue = (><) restOfQueue (Seq.singleton nextEvent)
 
-playerAction :: World -> IO(World)
-playerAction world = do
-  -- drawRedraws redraws (lLayout level)
-  input <- getInput
-  let world' = handleAction world input
-
-  -- render here
+render :: World -> IO()
+render world = do
   drawFullMap $ lLayout $ wLevel world
-  -- drawRedraws [] $ lLayout $ wLevel world
   drawItems $ wItems world
   drawCharacter $ wHero world
   drawMobs $ wMobs world
+  
 
+playerAction :: World -> IO(World)
+playerAction world = do
+  input <- getInput
+  let world' = handleAction world input
+
+  render world'
   return world'
 
